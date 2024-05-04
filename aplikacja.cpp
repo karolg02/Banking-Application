@@ -112,19 +112,19 @@ int main() {
     //pasekText
 
     sf::Text myAccText("Moje konto",font,24);
-    myAccText.setPosition(10,5);
+    myAccText.setPosition(15,15);
     myAccText.setFillColor(sf::Color::Black);
 
     sf::Text myTransactionText("Transakcje",font,24);
-    myTransactionText.setPosition(170,5);
+    myTransactionText.setPosition(177,15);
     myTransactionText.setFillColor(sf::Color::Black);
 
     sf::Text myHistoryText("Historia", font,24);
-    myHistoryText.setPosition(330,5);
+    myHistoryText.setPosition(353,15);
     myHistoryText.setFillColor(sf::Color::Black);
 
     sf::Text quitText("Wyjdz",font,24);
-    quitText.setPosition(490,5);
+    quitText.setPosition(525,15);
     quitText.setFillColor(sf::Color::Black);
 
     sf::Text RejectedText("Bledne dane, nie zalogowano",font,12);
@@ -250,9 +250,13 @@ int main() {
         useridText.setPosition(650,16);
         useridText.setFillColor(sf::Color::Black);
 
-        sf::Text myBalance("Stan konta: " + (std::ostringstream{} << std::fixed << std::setprecision(2) << balance).str(), font, 24);
+        sf::Text myBalance("Stan konta: $" + (std::ostringstream{} << std::fixed << std::setprecision(2) << balance).str(), font, 24);
         myBalance.setPosition(50,100);
         myBalance.setFillColor(sf::Color::Black);
+
+        sf::Text email("email: " + emailInput,font, 16);
+        email.setPosition(50, 150);
+        email.setFillColor(sf::Color::Black);
 
         sf::Texture logoTexture;
         if (!logoTexture.loadFromFile("bank.jpg")) {
@@ -269,6 +273,14 @@ int main() {
         right_logo.setTexture(logoTexture);
         right_logo.setScale(0.7, 0.7f);
         right_logo.setPosition(450,150);
+
+        sf::Texture monety;
+        monety.loadFromFile("monety.jpg");
+
+        sf::Sprite monety_zdj;
+        monety_zdj.setTexture(monety);
+        monety_zdj.setPosition(0,0);
+        monety_zdj.setScale(0.7,0.7);
 
         // Wyczyszczenie okna
         window.clear(sf::Color::White);
@@ -314,7 +326,9 @@ int main() {
             window.draw(right_logo);
             window.draw(left_box);
             window.draw(myBalance);
+            window.draw(email);
         } else if (currentState == State::Transfers) {
+            window.draw(monety_zdj);
             window.draw(bar);
             window.draw(useridText);
             window.draw(myAcc);

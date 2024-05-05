@@ -73,7 +73,6 @@ int main() {
     sf::RectangleShape myAcc(sf::Vector2f(150,50));
     myAcc.setPosition(5,5);
     myAcc.setFillColor(sf::Color(241, 178, 86));
-    
 
     sf::RectangleShape myTransaction(sf::Vector2f(150,50));
     myTransaction.setPosition(165,5);
@@ -106,7 +105,7 @@ int main() {
     textRegistration.setFillColor(sf::Color::Black);
 
     sf::Text bank("Bank Kar SA",font,30);
-    bank.setPosition(315,50);
+    bank.setPosition(315,100);
     bank.setFillColor(sf::Color::Black);
 
     //pasekText
@@ -124,7 +123,7 @@ int main() {
     myHistoryText.setFillColor(sf::Color::Black);
 
     sf::Text quitText("Wyjdz",font,24);
-    quitText.setPosition(525,15);
+    quitText.setPosition(522,15);
     quitText.setFillColor(sf::Color::Black);
 
     sf::Text RejectedText("Bledne dane, nie zalogowano",font,12);

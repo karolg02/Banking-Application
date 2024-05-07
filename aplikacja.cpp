@@ -74,9 +74,9 @@ int main() {
     myAcc.setPosition(5,5);
     myAcc.setFillColor(sf::Color(241, 178, 86));
 
-    sf::RectangleShape myTransaction(sf::Vector2f(150,50));
-    myTransaction.setPosition(165,5);
-    myTransaction.setFillColor(sf::Color(241, 178, 86));
+    sf::RectangleShape myPayments(sf::Vector2f(150,50));
+    myPayments.setPosition(165,5);
+    myPayments.setFillColor(sf::Color(241, 178, 86));
 
     sf::RectangleShape myHistory(sf::Vector2f(150,50));
     myHistory.setPosition(325,5);
@@ -95,6 +95,12 @@ int main() {
     left_box.setFillColor(sf::Color(228,214,214));
     left_box.setOutlineThickness(1);
     left_box.setOutlineColor(sf::Color::Black);
+    
+    sf::RectangleShape middle_box(sf::Vector2f(600,425));
+    middle_box.setPosition(100,100);
+    middle_box.setFillColor(sf::Color(228,214,214));
+    middle_box.setOutlineThickness(2);
+    middle_box.setOutlineColor(sf::Color::Black);
 
     sf::Text doRegistrationText("Zarejestruj sie!",font,20);
     doRegistrationText.setPosition(320,415);
@@ -114,9 +120,9 @@ int main() {
     myAccText.setPosition(15,15);
     myAccText.setFillColor(sf::Color::Black);
 
-    sf::Text myTransactionText("Transakcje",font,24);
-    myTransactionText.setPosition(177,15);
-    myTransactionText.setFillColor(sf::Color::Black);
+    sf::Text myPaymentsText("Platnosci",font,24);
+    myPaymentsText.setPosition(185,15);
+    myPaymentsText.setFillColor(sf::Color::Black);
 
     sf::Text myHistoryText("Historia", font,24);
     myHistoryText.setPosition(353,15);
@@ -158,14 +164,14 @@ int main() {
                 } else if(myHistory.getGlobalBounds().contains(mousePosF)){
                     myHistory.setFillColor(sf::Color::White);
                     isHovered = true;
-                } else if(myTransaction.getGlobalBounds().contains(mousePosF)){
-                    myTransaction.setFillColor(sf::Color::White);
+                } else if(myPayments.getGlobalBounds().contains(mousePosF)){
+                    myPayments.setFillColor(sf::Color::White);
                     isHovered = true;
                 }
                 else {
                     myAcc.setFillColor(sf::Color(241, 178, 86));
                     myHistory.setFillColor(sf::Color(241, 178, 86));
-                    myTransaction.setFillColor(sf::Color(241, 178, 86));
+                    myPayments.setFillColor(sf::Color(241, 178, 86));
                     isHovered = false;
                 }
             }
@@ -207,7 +213,7 @@ int main() {
                     currentState = MyAccount;
                 }
 
-                if(myTransaction.getGlobalBounds().contains(mousePosF)){
+                if(myPayments.getGlobalBounds().contains(mousePosF)){
                     currentState = Transfers;
                 }
 
@@ -250,8 +256,12 @@ int main() {
         useridText.setFillColor(sf::Color::Black);
 
         sf::Text myBalance("Stan konta: $" + (std::ostringstream{} << std::fixed << std::setprecision(2) << balance).str(), font, 24);
-        myBalance.setPosition(50,100);
         myBalance.setFillColor(sf::Color::Black);
+        if(currentState==MyAccount){
+            myBalance.setPosition(50,100);
+        }else if(currentState==Transfers){
+            myBalance.setPosition(300,125);
+        }
 
         sf::Text email("email: " + emailInput,font, 16);
         email.setPosition(50, 150);
@@ -316,8 +326,8 @@ int main() {
             window.draw(useridText);
             window.draw(myAcc);
             window.draw(myAccText);
-            window.draw(myTransaction);
-            window.draw(myTransactionText);
+            window.draw(myPayments);
+            window.draw(myPaymentsText);
             window.draw(myHistory);
             window.draw(myHistoryText);
             window.draw(quit);
@@ -327,24 +337,26 @@ int main() {
             window.draw(myBalance);
             window.draw(email);
         } else if (currentState == State::Transfers) {
-            window.draw(monety_zdj);
+            //window.draw(monety_zdj);
             window.draw(bar);
             window.draw(useridText);
             window.draw(myAcc);
             window.draw(myAccText);
-            window.draw(myTransaction);
-            window.draw(myTransactionText);
+            window.draw(myPayments);
+            window.draw(myPaymentsText);
             window.draw(myHistory);
             window.draw(myHistoryText);
             window.draw(quit);
             window.draw(quitText);
+            window.draw(middle_box);
+            window.draw(myBalance);
         } else if (currentState == State::History) {
             window.draw(bar);
             window.draw(useridText);
             window.draw(myAcc);
             window.draw(myAccText);
-            window.draw(myTransaction);
-            window.draw(myTransactionText);
+            window.draw(myPayments);
+            window.draw(myPaymentsText);
             window.draw(myHistory);
             window.draw(myHistoryText);
             window.draw(quit);

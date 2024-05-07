@@ -18,7 +18,9 @@ int main() {
     State currentState = State::Login;
 
     int userid;
-    double balance;
+    int balance;
+    int kwotaInput = 0;
+
 
     // Stworzenie przycisku
     sf::RectangleShape button(sf::Vector2f(150, 50));
@@ -62,6 +64,59 @@ int main() {
     passwordBox.setFillColor(sf::Color::White);
     passwordBox.setOutlineThickness(1);
     passwordBox.setOutlineColor(sf::Color::Black);
+
+
+    //300,125
+    sf::Text odbiorcaText("Odbiorca: ",font,24);
+    odbiorcaText.setPosition(115,180);
+    odbiorcaText.setFillColor(sf::Color::Black);
+
+    sf::RectangleShape odbiorcaBox(sf::Vector2f(400, 28));
+    odbiorcaBox.setPosition(235, 180);
+    odbiorcaBox.setFillColor(sf::Color::White);
+    odbiorcaBox.setOutlineThickness(1);
+    odbiorcaBox.setOutlineColor(sf::Color::Black);
+
+    sf::Text odbiorcaTEKST("",font,24);
+    odbiorcaTEKST.setPosition(236,180);
+    odbiorcaTEKST.setFillColor(sf::Color::Black);
+
+    sf::RectangleShape odbiorcaBoxShadow = odbiorcaBox;
+    odbiorcaBoxShadow.setPosition(235+2, 180+2);
+    odbiorcaBoxShadow.setFillColor(sf::Color(30, 30, 30));
+
+    sf::Text kwotaTxt("Kwota: ", font, 24);
+    kwotaTxt.setPosition(115,220);
+    kwotaTxt.setFillColor(sf::Color::Black);
+
+    sf::RectangleShape kwotaBox(sf::Vector2f(200,28));
+    kwotaBox.setPosition(235, 220);
+    kwotaBox.setFillColor(sf::Color::White);
+    kwotaBox.setOutlineThickness(1);
+    kwotaBox.setOutlineColor(sf::Color::Black);
+
+    sf::Text kwotaTEKST((std::ostringstream{} << std::fixed << std::setprecision(2) << kwotaInput).str(), font, 24);
+    kwotaTEKST.setPosition(236,220);
+    kwotaTEKST.setFillColor(sf::Color::Black);
+    
+
+    sf::RectangleShape kwotaBoxShadow = kwotaBox; // Tworzenie kopii prostokąta
+    kwotaBoxShadow.setPosition(235 + 2, 220 + 2); // Przesunięcie cienia
+    kwotaBoxShadow.setFillColor(sf::Color(30, 30, 30)); // Kolor cienia, można eksperymentować z wartościami
+
+    sf::RectangleShape przelejButton(sf::Vector2f(200,50));
+    przelejButton.setPosition(300,400);
+    przelejButton.setFillColor(sf::Color(250, 184, 86));
+    przelejButton.setOutlineThickness(1);
+    przelejButton.setOutlineColor(sf::Color::Black);
+
+    sf::Text przelejButtonText("Przelej", font, 24);
+    przelejButtonText.setPosition(360,413);
+    przelejButtonText.setFillColor(sf::Color::Black);
+
+    sf::RectangleShape przelejButtonShadow = przelejButton;
+    przelejButtonShadow.setPosition(300+2,400+2);
+    przelejButtonShadow.setFillColor(sf::Color(30, 30, 30));
 
 
     //pasek
@@ -139,11 +194,14 @@ int main() {
     // Zmienne przechowujące wprowadzone dane
     std::string emailInput = "";
     std::string passwordInput = "";
+    std::string odbiorcaInput = "";
 
     // Zmienne wskazujące, które pole jest aktualnie aktywne
     bool emailActive = false;
     bool passwordActive = false;
-    bool isHovered = false;
+    bool kwotaActive = false;
+    bool odbiorcaActive = false;
+    bool isHoveredButton = false;
 
     // Pętla główna programu
     while (window.isOpen()) {
@@ -159,103 +217,156 @@ int main() {
                 sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
                 if (myAcc.getGlobalBounds().contains(mousePosF)) {
-                    myAcc.setFillColor(sf::Color::White);
-                    isHovered = true;
+                    myAcc.setFillColor(sf::Color(39, 54, 85));
                 } else if(myHistory.getGlobalBounds().contains(mousePosF)){
-                    myHistory.setFillColor(sf::Color::White);
-                    isHovered = true;
+                    myHistory.setFillColor(sf::Color(39, 54, 85));
                 } else if(myPayments.getGlobalBounds().contains(mousePosF)){
-                    myPayments.setFillColor(sf::Color::White);
-                    isHovered = true;
+                    myPayments.setFillColor(sf::Color(39, 54, 85));
+                } else if(przelejButton.getGlobalBounds().contains(mousePosF)){
+                    przelejButton.setFillColor(sf::Color(39, 54, 85));
                 }
                 else {
-                    myAcc.setFillColor(sf::Color(241, 178, 86));
-                    myHistory.setFillColor(sf::Color(241, 178, 86));
-                    myPayments.setFillColor(sf::Color(241, 178, 86));
-                    isHovered = false;
-                }
-            }
-
-            // Obsługa kliknięcia myszą
-            if (event.type == sf::Event::MouseButtonPressed) {
-                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-
-                // Sprawdź, czy kliknięcie nastąpiło w polu email
-                if (emailBox.getGlobalBounds().contains(mousePosF)) {
-                    emailActive = true;
-                    passwordActive = false;
-                } else {
-                    emailActive = false;
+                    myAcc.setFillColor(sf::Color(250, 184, 86));
+                    myHistory.setFillColor(sf::Color(250, 184, 86));
+                    myPayments.setFillColor(sf::Color(250, 184, 86));
+                    przelejButton.setFillColor(sf::Color(250, 184, 86));
                 }
 
-                // Sprawdź, czy kliknięcie nastąpiło w polu hasła
-                if (passwordBox.getGlobalBounds().contains(mousePosF)) {
-                    passwordActive = true;
-                    emailActive = false;
-                } else {
-                    passwordActive = false;
+
                 }
 
-                // Sprawdź, czy naciśnięto
-                if (button.getGlobalBounds().contains(mousePosF)) {
-                    if (checkLogin(emailInput, passwordInput, userid)) {
-                        currentState = State::MyAccount; 
-                        std::cout<< "Nr id to: " << userid << std:: endl;
-                        getBalance(userid, balance);
-                    } else {
-                        std::cout << "Błedny email lub haslo!" << std::endl;
-                        currentState = State::Rejected;
+                    // Obsługa kliknięcia myszą
+                    if (event.type == sf::Event::MouseButtonPressed) {
+                        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                        sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+
+                        if(currentState==Login || currentState==Rejected){
+                            // Sprawdź, czy kliknięcie nastąpiło w polu email
+                            if (emailBox.getGlobalBounds().contains(mousePosF)) {
+                                emailActive = true;
+                                passwordActive = false;
+                            } else {
+                                emailActive = false;
+                            }
+
+                            // Sprawdź, czy kliknięcie nastąpiło w polu hasła
+                            if (passwordBox.getGlobalBounds().contains(mousePosF)) {
+                                passwordActive = true;
+                                emailActive = false;
+                            } else {
+                                passwordActive = false;
+                            }
+                        }
+
+                        if(currentState==Transfers){
+                            if (odbiorcaBox.getGlobalBounds().contains(mousePosF)) {
+                                odbiorcaActive = true;
+                                kwotaActive =false;
+                            } else {
+                                odbiorcaActive = false;
+                            }
+
+                            if (kwotaBox.getGlobalBounds().contains(mousePosF)) {
+                                kwotaActive = true;
+                                odbiorcaActive = false;
+                            } else {
+                                kwotaActive = false;
+                            }
+                        }
+
+                        // Sprawdź, czy naciśnięto
+                        if (button.getGlobalBounds().contains(mousePosF)) {
+                            if (checkLogin(emailInput, passwordInput, userid)) {
+                                currentState = State::MyAccount; 
+                                std::cout<< "Nr id to: " << userid << std:: endl;
+                                getBalance(userid, balance);
+                            } else {
+                                std::cout << "Błedny email lub haslo!" << std::endl;
+                                currentState = State::Rejected;
+                            }
+                        }
+
+                        if(myAcc.getGlobalBounds().contains(mousePosF)){
+                            currentState = MyAccount;
+                        }
+
+                        if(myPayments.getGlobalBounds().contains(mousePosF)){
+                            currentState = Transfers;
+                        }
+
+                        if(myHistory.getGlobalBounds().contains(mousePosF)){
+                            currentState = History;
+                        }
+                        
+                        // Sprawdź czy quit jest nacisniety
+                        if (quit.getGlobalBounds().contains(mousePosF)){
+                            window.close();
+                        }
+
+                        if(przelejButton.getGlobalBounds().contains(mousePosF)){
+                            if(!odbiorcaInput.empty()){
+                                if(kwotaInput==!0){
+                                    
+                                }else{
+                                    //kwota nie moze byc 0
+                                }
+                            }
+                            else{
+                                //window.draw(emptyEmail);
+                            }
+                        }
+
                     }
-                }
-
-                if(myAcc.getGlobalBounds().contains(mousePosF)){
-                    currentState = MyAccount;
-                }
-
-                if(myPayments.getGlobalBounds().contains(mousePosF)){
-                    currentState = Transfers;
-                }
-
-                if(myHistory.getGlobalBounds().contains(mousePosF)){
-                    currentState = History;
-                }
-                
-                 // Sprawdź czy quit jest nacisniety
-                if (quit.getGlobalBounds().contains(mousePosF)){
-                    window.close();
-                }
-
-            }
-            // Obsługa wprowadzania tekstu
-            if (event.type == sf::Event::TextEntered) {
-                // Jeśli pole email jest aktywne, dodaj tekst do zmiennej emailInput
-                if (emailActive) {
-                    if (event.text.unicode == 8 && !emailInput.empty()) { // Backspace
-                        emailInput.pop_back();
-                    } else if (event.text.unicode < 128 && emailInput.size() < 50 && event.text.unicode != 8) {
-                        emailInput += static_cast<char>(event.text.unicode);
+                    // Obsługa wprowadzania tekstu
+                    if (event.type == sf::Event::TextEntered) {
+                        // Pole email
+                        if (emailActive) {
+                            if (event.text.unicode == 8 && !emailInput.empty()) { // Backspace
+                                emailInput.pop_back();
+                            } else if (event.text.unicode < 128 && emailInput.size() < 50 && event.text.unicode != 8) {
+                                emailInput += static_cast<char>(event.text.unicode);
+                            }
+                            emailText.setString(emailInput);
+                        }
+                        // Pole hasla
+                        if (passwordActive) {
+                            if (event.text.unicode == 8 && !passwordInput.empty()) { // Backspace
+                                passwordInput.pop_back();
+                            } else if (event.text.unicode < 128 && passwordInput.size() < 50 && event.text.unicode != 8) {
+                                passwordInput += static_cast<char>(event.text.unicode);
+                            }
+                            passwordText.setString(std::string(passwordInput.size(), '*')); // Zamień hasło na gwiazdki
+                        }
+                        // Pole odbiorcy
+                        if (odbiorcaActive) {
+                            if (event.text.unicode == 8 && !odbiorcaInput.empty()) { // Backspace
+                                odbiorcaInput.pop_back();
+                            } else if (event.text.unicode < 128 && odbiorcaInput.size() < 50 && event.text.unicode != 8) {
+                                odbiorcaInput += static_cast<char>(event.text.unicode);
+                            }
+                            odbiorcaTEKST.setString(odbiorcaInput);
+                        }
+                        // Pole kwoty
+                        if (kwotaActive) {
+                            if (event.text.unicode == 8 && !std::to_string(kwotaInput).empty()) { // Backspace
+                                // Usuwanie ostatniego znaku z tekstu
+                                kwotaInput /= 10;
+                            } else if ((event.text.unicode >= '0' && event.text.unicode <= '9') || event.text.unicode == '.') {
+                                // Sprawdzanie czy wprowadzany znak to cyfra lub kropka
+                                kwotaInput = kwotaInput * 10 + (event.text.unicode - '0'); // Dodawanie cyfry lub kropki do kwoty
+                            }
+                            // Aktualizacja tekstu wyświetlanego na ekranie
+                            kwotaTEKST.setString(std::to_string(kwotaInput));
+                        }
                     }
-                    emailText.setString(emailInput);
+
                 }
-                // Jeśli pole hasła jest aktywne, dodaj tekst do zmiennej passwordInput
-                if (passwordActive) {
-                    if (event.text.unicode == 8 && !passwordInput.empty()) { // Backspace
-                        passwordInput.pop_back();
-                    } else if (event.text.unicode < 128 && passwordInput.size() < 50 && event.text.unicode != 8) {
-                        passwordInput += static_cast<char>(event.text.unicode);
-                    }
-                    passwordText.setString(std::string(passwordInput.size(), '*')); // Zamień hasło na gwiazdki
-                }
-            }
-            
-        }
         
-        sf::Text useridText("userID: " + std::to_string(userid),font, 24);
+        /*sf::Text useridText("userID: " + std::to_string(userid),font, 24);
         useridText.setPosition(650,16);
-        useridText.setFillColor(sf::Color::Black);
+        useridText.setFillColor(sf::Color::Black);*/
 
-        sf::Text myBalance("Stan konta: $" + (std::ostringstream{} << std::fixed << std::setprecision(2) << balance).str(), font, 24);
+        sf::Text myBalance("Stan konta: $" + std::to_string(balance), font, 24);
         myBalance.setFillColor(sf::Color::Black);
         if(currentState==MyAccount){
             myBalance.setPosition(50,100);
@@ -263,9 +374,9 @@ int main() {
             myBalance.setPosition(300,125);
         }
 
-        sf::Text email("email: " + emailInput,font, 16);
-        email.setPosition(50, 150);
-        email.setFillColor(sf::Color::Black);
+        //sf::Text email("email: " + emailInput,font, 16);
+        //email.setPosition(50, 150);
+        //email.setFillColor(sf::Color::Black);
 
         sf::Texture logoTexture;
         if (!logoTexture.loadFromFile("bank.jpg")) {
@@ -290,6 +401,9 @@ int main() {
         monety_zdj.setTexture(monety);
         monety_zdj.setPosition(0,0);
         monety_zdj.setScale(0.7,0.7);
+
+        //zmiana koloru dla przycisku
+        
 
         // Wyczyszczenie okna
         window.clear(sf::Color::White);
@@ -323,7 +437,7 @@ int main() {
             window.draw(RejectedText);
         } else if (currentState == State::MyAccount) {
             window.draw(bar);
-            window.draw(useridText);
+            //window.draw(useridText);
             window.draw(myAcc);
             window.draw(myAccText);
             window.draw(myPayments);
@@ -335,11 +449,12 @@ int main() {
             window.draw(right_logo);
             window.draw(left_box);
             window.draw(myBalance);
-            window.draw(email);
+            //window.draw(email);
+
         } else if (currentState == State::Transfers) {
             //window.draw(monety_zdj);
             window.draw(bar);
-            window.draw(useridText);
+            //window.draw(useridText);
             window.draw(myAcc);
             window.draw(myAccText);
             window.draw(myPayments);
@@ -350,9 +465,20 @@ int main() {
             window.draw(quitText);
             window.draw(middle_box);
             window.draw(myBalance);
+            window.draw(odbiorcaText);
+            window.draw(odbiorcaBoxShadow);
+            window.draw(odbiorcaBox);
+            window.draw(kwotaTxt);
+            window.draw(kwotaBoxShadow);
+            window.draw(kwotaBox);
+            window.draw(odbiorcaTEKST);
+            window.draw(kwotaTEKST);
+            window.draw(przelejButtonShadow);
+            window.draw(przelejButton);
+            window.draw(przelejButtonText);
         } else if (currentState == State::History) {
             window.draw(bar);
-            window.draw(useridText);
+            //window.draw(useridText);
             window.draw(myAcc);
             window.draw(myAccText);
             window.draw(myPayments);

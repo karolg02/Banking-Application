@@ -46,7 +46,7 @@ bool checkLogin(const std::string& email, const std::string& password, int &user
     return userid != -1;
 }
 
-bool getBalance(int userid, double& balance) {
+bool getBalance(int userid, int& balance) {
     MYSQL mysql;
     mysql_init(&mysql);
 
@@ -83,4 +83,8 @@ bool getBalance(int userid, double& balance) {
     mysql_free_result(result);
     mysql_close(&mysql);
     return true;
+}
+
+void connect_for_transaction(int& userid, std::string& adres_odbiorcy, int& balance_adresata, int& balance_odbiorcy){
+    
 }

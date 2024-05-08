@@ -22,6 +22,8 @@ int main() {
     int kwotaInput = 0;
     int total_transactions;
 
+    std::vector<std::vector<std::string>> history;
+
     // Stworzenie przycisku
     sf::RectangleShape button(sf::Vector2f(150, 50));
     button.setPosition(325, 300);
@@ -308,8 +310,15 @@ int main() {
 
                         if(myHistory.getGlobalBounds().contains(mousePosF)){
                             currentState = History;
-                            history_load(userid, total_transactions);
+                            history_load(userid, total_transactions, history);
                             std::cout << total_transactions << std::endl;
+                            int start_index = std::max(0, total_transactions - 10); // Początkowy indeks dla ostatnich 10 transakcji
+                            for(int i = start_index; i < total_transactions; ++i) {
+                                for(const auto& field : history[i]) {
+                                    std::cout << field << " ";
+                                }
+                                std::cout << std::endl;
+                            }
                         }
                         
                         // Sprawdź czy quit jest nacisniety

@@ -163,7 +163,7 @@ bool connect_for_transaction(int& userid, std::string& adres_odbiorcy, int& bala
     return true;
 }
 
-bool history_load(int& userid, int& total_transactions){
+bool history_load(int& userid, int& total_transactions, std::vector<std::vector<std::string>>& history){
     MYSQL mysql;
     mysql_init(&mysql);
     
@@ -184,8 +184,31 @@ bool history_load(int& userid, int& total_transactions){
 
     std::string get_history = "SELECT * FROM history WHERE id = " + std::to_string(userid) + ";";
 
-    //tu kod zapisujacy dane do wektora i guess
-    
+    if (mysql_query(&mysql, get_history.c_str()) != 0) {
+        std::cerr << "Błąd zapytania o historię transakcji: " << mysql_error(&mysql) << std::endl;
+        mysql_close(&mysql);
+        return false;
+    }
+
+    MYSQL_RES* result = mysql_store_result(&mysql);
+    if (!result) {
+        std::cerr << "Błąd pobierania wyników zapytania historii transakcji: " << mysql_error(&mysql) << std::endl;
+        mysql_close(&mysql);
+        return false;
+    }
+
+    int num_fields = mysql_num_fields(result);
+    MYSQL_ROW row;
+    while ((row = mysql_fetch_row(result))) {
+        std::vector<std::string> transaction_data;
+        for(int i = 0; i < num_fields; i++) {
+            transaction_data.push_back(row[i] ? row[i] : "NULL");
+        }
+        history.push_back(transaction_data);
+    }
+
+    mysql_free_result(result);
+
     mysql_close(&mysql);
     return true;
 }

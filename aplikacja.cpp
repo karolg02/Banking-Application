@@ -24,14 +24,8 @@ int main() {
 
     std::vector<std::vector<std::string>> history;
 
-    // Stworzenie przycisku
-    sf::RectangleShape button(sf::Vector2f(150, 50));
-    button.setPosition(325, 300);
-    button.setFillColor(sf::Color(250, 184, 86));
-
-    sf::RectangleShape container(sf::Vector2f(400,500));
-    container.setPosition(200,50);
-    container.setFillColor(sf::Color(0, 120, 52));
+    sf::Color firstmain(0, 120, 52);
+    sf::Color secondmain(241, 178, 86);
 
     // Pobranie domyślnej czcionki systemowej
     sf::Font font;
@@ -40,168 +34,208 @@ int main() {
         return 1;
     }
 
-    // Tekst na przycisku
-    sf::Text buttonText("Zaloguj sie!", font, 20);
-    buttonText.setPosition(340, 315);
-    buttonText.setFillColor(sf::Color::Black);
+    //logowanie poczatek
 
-    // Pole tekstowe dla email
-    sf::Text emailText("Email", font, 16);
-    emailText.setPosition(276, 180);
-    emailText.setFillColor(sf::Color::Black);
+        // Tekst na przycisku
+        sf::Text buttonText("Zaloguj sie!", font, 20);
+        buttonText.setPosition(340, 315);
+        buttonText.setFillColor(sf::Color::Black);
 
-    sf::RectangleShape emailBox(sf::Vector2f(250, 20));
-    emailBox.setPosition(275, 180);
-    emailBox.setFillColor(sf::Color::White);
-    emailBox.setOutlineThickness(1);
-    emailBox.setOutlineColor(sf::Color::Black);
+        // Pole tekstowe dla email
+        sf::Text emailText("Email", font, 16);
+        emailText.setPosition(276, 180);
+        emailText.setFillColor(sf::Color::Black);
 
-    // Pole tekstowe dla hasła
-    sf::Text passwordText("Haslo", font, 16);
-    passwordText.setPosition(276, 240);
-    passwordText.setFillColor(sf::Color::Black);
+        sf::RectangleShape emailBox(sf::Vector2f(250, 20));
+        emailBox.setPosition(275, 180);
+        emailBox.setFillColor(sf::Color::White);
+        emailBox.setOutlineThickness(1);
+        emailBox.setOutlineColor(sf::Color::Black);
 
-    sf::RectangleShape passwordBox(sf::Vector2f(250, 20));
-    passwordBox.setPosition(275, 240);
-    passwordBox.setFillColor(sf::Color::White);
-    passwordBox.setOutlineThickness(1);
-    passwordBox.setOutlineColor(sf::Color::Black);
+        // Pole tekstowe dla hasła
+        sf::Text passwordText("Haslo", font, 16);
+        passwordText.setPosition(276, 240);
+        passwordText.setFillColor(sf::Color::Black);
 
-    sf::Text odbiorcaText("Odbiorca: ",font,24);
-    odbiorcaText.setPosition(115,220);
-    odbiorcaText.setFillColor(sf::Color::Black);
+        sf::RectangleShape passwordBox(sf::Vector2f(250, 20));
+        passwordBox.setPosition(275, 240);
+        passwordBox.setFillColor(sf::Color::White);
+        passwordBox.setOutlineThickness(1);
+        passwordBox.setOutlineColor(sf::Color::Black);
 
-    sf::RectangleShape odbiorcaBox(sf::Vector2f(400, 28));
-    odbiorcaBox.setPosition(235, 220);
-    odbiorcaBox.setFillColor(sf::Color::White);
-    odbiorcaBox.setOutlineThickness(1);
-    odbiorcaBox.setOutlineColor(sf::Color::Black);
+        sf::RectangleShape button(sf::Vector2f(150, 50));
+        button.setPosition(325, 300);
+        button.setFillColor(sf::Color(250, 184, 86));
 
-    sf::Text odbiorcaTEKST("",font,24);
-    odbiorcaTEKST.setPosition(236,220);
-    odbiorcaTEKST.setFillColor(sf::Color::Black);
+        sf::RectangleShape container(sf::Vector2f(400,500));
+        container.setPosition(200,50);
+        container.setFillColor(firstmain);
 
-    sf::RectangleShape odbiorcaBoxShadow = odbiorcaBox;
-    odbiorcaBoxShadow.setPosition(235+2, 220+2);
-    odbiorcaBoxShadow.setFillColor(sf::Color(30, 30, 30));
+        sf::RectangleShape doRegistration(sf::Vector2f(200,50));
+        doRegistration.setPosition(300, 400);
+        doRegistration.setFillColor(sf::Color::Red);
 
-    sf::Text kwotaTxt("Kwota: ", font, 24);
-    kwotaTxt.setPosition(115,280);
-    kwotaTxt.setFillColor(sf::Color::Black);
+        sf::RectangleShape left_box(sf::Vector2f(400,520));
+        left_box.setPosition(0,80);
+        left_box.setFillColor(sf::Color(228,214,214));
+        
+        sf::RectangleShape middle_box(sf::Vector2f(600,425));
+        middle_box.setPosition(100,80);
+        middle_box.setFillColor(sf::Color(228,214,214));
+        middle_box.setOutlineThickness(1);
+        middle_box.setOutlineColor(sf::Color::Black);
 
-    sf::RectangleShape kwotaBox(sf::Vector2f(200,28));
-    kwotaBox.setPosition(235, 280);
-    kwotaBox.setFillColor(sf::Color::White);
-    kwotaBox.setOutlineThickness(1);
-    kwotaBox.setOutlineColor(sf::Color::Black);
+        sf::RectangleShape middle_boxShadow(sf::Vector2f(600,425));
+        middle_boxShadow.setPosition(102,82);
+        middle_boxShadow.setFillColor(sf::Color::Black);
 
-    sf::Text kwotaTEKST((std::ostringstream{} << std::fixed << std::setprecision(2) << kwotaInput).str(), font, 24);
-    kwotaTEKST.setPosition(236,280);
-    kwotaTEKST.setFillColor(sf::Color::Black);
-    
-    sf::RectangleShape kwotaBoxShadow = kwotaBox;
-    kwotaBoxShadow.setPosition(235 + 2, 280 + 2);
-    kwotaBoxShadow.setFillColor(sf::Color(30, 30, 30));
+        sf::Text doRegistrationText("Zarejestruj sie!",font,20);
+        doRegistrationText.setPosition(320,415);
+        doRegistrationText.setFillColor(sf::Color::Black);
 
-    sf::RectangleShape przelejButton(sf::Vector2f(200,50));
-    przelejButton.setPosition(300,400);
-    przelejButton.setFillColor(sf::Color(250, 184, 86));
-    przelejButton.setOutlineThickness(1);
-    przelejButton.setOutlineColor(sf::Color::Black);
+        sf::Text textRegistration("Nie masz konta? Zarejestruj sie ponizej", font,12);
+        textRegistration.setPosition(285,380);
+        textRegistration.setFillColor(sf::Color::Black);
 
-    sf::Text przelejButtonText("Przelej", font, 24);
-    przelejButtonText.setPosition(360,413);
-    przelejButtonText.setFillColor(sf::Color::Black);
+        sf::Text bank("Bank Kar SA",font,30);
+        bank.setPosition(315,100);
+        bank.setFillColor(sf::Color::Black);
 
-    sf::RectangleShape przelejButtonShadow = przelejButton;
-    przelejButtonShadow.setPosition(300+2,400+2);
-    przelejButtonShadow.setFillColor(sf::Color(30, 30, 30));
+        sf::Text myAccText("Moje konto",font,24);
+        myAccText.setPosition(45,26);
+        myAccText.setFillColor(sf::Color::Black);
 
-    sf::RectangleShape bar(sf::Vector2f(800, 80));
-    bar.setPosition(0, 0);
-    bar.setFillColor(sf::Color(0, 120, 52));
+        sf::Text myPaymentsText("Platnosci",font,24);
+        myPaymentsText.setPosition(250,26);
+        myPaymentsText.setFillColor(sf::Color::Black);
 
-    sf::RectangleShape myAcc(sf::Vector2f(180,50));
-    myAcc.setPosition(16,15);
-    myAcc.setFillColor(sf::Color(241, 178, 86));
-    myAcc.setOutlineThickness(1);
-    myAcc.setOutlineColor(sf::Color::Black);
+        sf::Text myHistoryText("Historia", font,24);
+        myHistoryText.setPosition(450,26);
+        myHistoryText.setFillColor(sf::Color::Black);
 
-    sf::RectangleShape myPayments(sf::Vector2f(180,50));
-    myPayments.setPosition(212,15);
-    myPayments.setFillColor(sf::Color(241, 178, 86));
-    myPayments.setOutlineThickness(1);
-    myPayments.setOutlineColor(sf::Color::Black);
+        sf::Text quitText("Wyjdz",font,24);
+        quitText.setPosition(655,26);
+        quitText.setFillColor(sf::Color::Black);
 
-    sf::RectangleShape myHistory(sf::Vector2f(180,50));
-    myHistory.setPosition(408,15);
-    myHistory.setFillColor(sf::Color(241, 178, 86));
-    myHistory.setOutlineThickness(1);
-    myHistory.setOutlineColor(sf::Color::Black);
+        sf::Text RejectedText("Bledne dane, nie zalogowano",font,12);
+        RejectedText.setPosition(315,150);
+        RejectedText.setFillColor(sf::Color::Black);
 
-    sf::RectangleShape quit(sf::Vector2f(180,50));
-    quit.setPosition(604,15);
-    quit.setFillColor(sf::Color::Red);
-    quit.setOutlineThickness(1);
-    quit.setOutlineColor(sf::Color::Black);
+    //logowanie koniec
 
-    sf::RectangleShape doRegistration(sf::Vector2f(200,50));
-    doRegistration.setPosition(300, 400);
-    doRegistration.setFillColor(sf::Color::Red);
+    //bar poczatek
 
-    sf::RectangleShape left_box(sf::Vector2f(400,520));
-    left_box.setPosition(0,80);
-    left_box.setFillColor(sf::Color(228,214,214));
-    
-    sf::RectangleShape middle_box(sf::Vector2f(600,425));
-    middle_box.setPosition(100,80);
-    middle_box.setFillColor(sf::Color(228,214,214));
-    middle_box.setOutlineThickness(1);
-    middle_box.setOutlineColor(sf::Color::Black);
+        sf::RectangleShape bar(sf::Vector2f(800, 80));
+        bar.setPosition(0, 0);
+        bar.setFillColor(firstmain);
 
-    sf::RectangleShape middle_boxShadow(sf::Vector2f(600,425));
-    middle_boxShadow.setPosition(102,82);
-    middle_boxShadow.setFillColor(sf::Color::Black);
+        sf::RectangleShape myAcc(sf::Vector2f(180,50));
+        myAcc.setPosition(16,15);
+        myAcc.setFillColor(secondmain);
+        myAcc.setOutlineThickness(1);
+        myAcc.setOutlineColor(sf::Color::Black);
 
-    sf::Text doRegistrationText("Zarejestruj sie!",font,20);
-    doRegistrationText.setPosition(320,415);
-    doRegistrationText.setFillColor(sf::Color::Black);
+        sf::RectangleShape myPayments(sf::Vector2f(180,50));
+        myPayments.setPosition(212,15);
+        myPayments.setFillColor(secondmain);
+        myPayments.setOutlineThickness(1);
+        myPayments.setOutlineColor(sf::Color::Black);
 
-    sf::Text textRegistration("Nie masz konta? Zarejestruj sie ponizej", font,12);
-    textRegistration.setPosition(285,380);
-    textRegistration.setFillColor(sf::Color::Black);
+        sf::RectangleShape myHistory(sf::Vector2f(180,50));
+        myHistory.setPosition(408,15);
+        myHistory.setFillColor(secondmain);
+        myHistory.setOutlineThickness(1);
+        myHistory.setOutlineColor(sf::Color::Black);
 
-    sf::Text bank("Bank Kar SA",font,30);
-    bank.setPosition(315,100);
-    bank.setFillColor(sf::Color::Black);
+        sf::RectangleShape quit(sf::Vector2f(180,50));
+        quit.setPosition(604,15);
+        quit.setFillColor(sf::Color::Red);
+        quit.setOutlineThickness(1);
+        quit.setOutlineColor(sf::Color::Black);
 
-    sf::Text doesntExists("Nie istnieje uzytkownik o takim adresie!",font, 16);
-    doesntExists.setPosition(240,200);
-    doesntExists.setFillColor(sf::Color::Red);
+    //bar koniec
 
-    sf::Text transAccepted("Transakcja przebiegla pomyslnie!",font, 16);
-    transAccepted.setPosition(240,200);
-    transAccepted.setFillColor(sf::Color(0, 120, 52));
+    //transakcje poczatek
 
-    sf::Text myAccText("Moje konto",font,24);
-    myAccText.setPosition(45,26);
-    myAccText.setFillColor(sf::Color::Black);
+        sf::Text odbiorcaText("Odbiorca: ",font,24);
+        odbiorcaText.setPosition(115,220);
+        odbiorcaText.setFillColor(sf::Color::Black);
 
-    sf::Text myPaymentsText("Platnosci",font,24);
-    myPaymentsText.setPosition(250,26);
-    myPaymentsText.setFillColor(sf::Color::Black);
+        sf::RectangleShape odbiorcaBox(sf::Vector2f(400, 28));
+        odbiorcaBox.setPosition(235, 220);
+        odbiorcaBox.setFillColor(sf::Color::White);
+        odbiorcaBox.setOutlineThickness(1);
+        odbiorcaBox.setOutlineColor(sf::Color::Black);
 
-    sf::Text myHistoryText("Historia", font,24);
-    myHistoryText.setPosition(450,26);
-    myHistoryText.setFillColor(sf::Color::Black);
+        sf::Text odbiorcaTEKST("",font,24);
+        odbiorcaTEKST.setPosition(236,220);
+        odbiorcaTEKST.setFillColor(sf::Color::Black);
 
-    sf::Text quitText("Wyjdz",font,24);
-    quitText.setPosition(655,26);
-    quitText.setFillColor(sf::Color::Black);
+        sf::RectangleShape odbiorcaBoxShadow = odbiorcaBox;
+        odbiorcaBoxShadow.setPosition(235+2, 220+2);
+        odbiorcaBoxShadow.setFillColor(sf::Color(30, 30, 30));
 
-    sf::Text RejectedText("Bledne dane, nie zalogowano",font,12);
-    RejectedText.setPosition(315,150);
-    RejectedText.setFillColor(sf::Color::Black);
+        sf::Text kwotaTxt("Kwota: ", font, 24);
+        kwotaTxt.setPosition(115,280);
+        kwotaTxt.setFillColor(sf::Color::Black);
+
+        sf::RectangleShape kwotaBox(sf::Vector2f(200,28));
+        kwotaBox.setPosition(235, 280);
+        kwotaBox.setFillColor(sf::Color::White);
+        kwotaBox.setOutlineThickness(1);
+        kwotaBox.setOutlineColor(sf::Color::Black);
+
+        sf::Text kwotaTEKST((std::ostringstream{} << std::fixed << std::setprecision(2) << kwotaInput).str(), font, 24);
+        kwotaTEKST.setPosition(236,280);
+        kwotaTEKST.setFillColor(sf::Color::Black);
+        
+        sf::RectangleShape kwotaBoxShadow = kwotaBox;
+        kwotaBoxShadow.setPosition(235 + 2, 280 + 2);
+        kwotaBoxShadow.setFillColor(sf::Color(30, 30, 30));
+
+        sf::RectangleShape przelejButton(sf::Vector2f(200,50));
+        przelejButton.setPosition(300,400);
+        przelejButton.setFillColor(sf::Color(250, 184, 86));
+        przelejButton.setOutlineThickness(1);
+        przelejButton.setOutlineColor(sf::Color::Black);
+
+        sf::Text przelejButtonText("Przelej", font, 24);
+        przelejButtonText.setPosition(360,413);
+        przelejButtonText.setFillColor(sf::Color::Black);
+
+        sf::RectangleShape przelejButtonShadow = przelejButton;
+        przelejButtonShadow.setPosition(300+2,400+2);
+        przelejButtonShadow.setFillColor(sf::Color(30, 30, 30));
+
+        sf::Text doesntExists("Nie istnieje uzytkownik o takim adresie!",font, 16);
+        doesntExists.setPosition(240,200);
+        doesntExists.setFillColor(sf::Color::Red);
+
+        sf::Text transAccepted("Transakcja przebiegla pomyslnie!",font, 16);
+        transAccepted.setPosition(240,200);
+        transAccepted.setFillColor(firstmain);
+
+    //transakcje koniec
+
+    //historia poczatek
+
+        sf::RectangleShape left_site(sf::Vector2f(400,520));
+        left_site.setPosition(0,80);
+        left_site.setFillColor(sf::Color(228,214,214));
+
+        sf::RectangleShape right_site(sf::Vector2f(400,520));
+        right_site.setPosition(400,80);
+        right_site.setFillColor(sf::Color::White);
+
+        sf::Text przychody("Przychody",font,24);
+        przychody.setPosition(600,300);
+        przychody.setFillColor(sf::Color::Black);
+        
+        sf::Text koszty("Koszty",font,24);
+        koszty.setPosition(200,300);
+        koszty.setFillColor(sf::Color::Black);
+
+    //historia koniec
 
     // Zmienne przechowujące wprowadzone dane
     std::string emailInput = "";
@@ -502,6 +536,10 @@ int main() {
             window.draw(myHistoryText);
             window.draw(quit);
             window.draw(quitText);
+            window.draw(left_site);
+            window.draw(right_site);
+            window.draw(przychody);
+            window.draw(koszty);
         }
         
         window.display();

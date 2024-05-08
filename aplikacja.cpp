@@ -7,7 +7,7 @@ enum State {
     Rejected,
     MyAccount,
     Transfers,
-    History
+    History,
 };
 
 int main() {
@@ -20,7 +20,7 @@ int main() {
     int userid;
     int balance;
     int kwotaInput = 0;
-
+    int total_transactions;
 
     // Stworzenie przycisku
     sf::RectangleShape button(sf::Vector2f(150, 50));
@@ -65,44 +65,41 @@ int main() {
     passwordBox.setOutlineThickness(1);
     passwordBox.setOutlineColor(sf::Color::Black);
 
-
-    //300,125
     sf::Text odbiorcaText("Odbiorca: ",font,24);
-    odbiorcaText.setPosition(115,180);
+    odbiorcaText.setPosition(115,220);
     odbiorcaText.setFillColor(sf::Color::Black);
 
     sf::RectangleShape odbiorcaBox(sf::Vector2f(400, 28));
-    odbiorcaBox.setPosition(235, 180);
+    odbiorcaBox.setPosition(235, 220);
     odbiorcaBox.setFillColor(sf::Color::White);
     odbiorcaBox.setOutlineThickness(1);
     odbiorcaBox.setOutlineColor(sf::Color::Black);
 
     sf::Text odbiorcaTEKST("",font,24);
-    odbiorcaTEKST.setPosition(236,180);
+    odbiorcaTEKST.setPosition(236,220);
     odbiorcaTEKST.setFillColor(sf::Color::Black);
 
     sf::RectangleShape odbiorcaBoxShadow = odbiorcaBox;
-    odbiorcaBoxShadow.setPosition(235+2, 180+2);
+    odbiorcaBoxShadow.setPosition(235+2, 220+2);
     odbiorcaBoxShadow.setFillColor(sf::Color(30, 30, 30));
 
     sf::Text kwotaTxt("Kwota: ", font, 24);
-    kwotaTxt.setPosition(115,220);
+    kwotaTxt.setPosition(115,280);
     kwotaTxt.setFillColor(sf::Color::Black);
 
     sf::RectangleShape kwotaBox(sf::Vector2f(200,28));
-    kwotaBox.setPosition(235, 220);
+    kwotaBox.setPosition(235, 280);
     kwotaBox.setFillColor(sf::Color::White);
     kwotaBox.setOutlineThickness(1);
     kwotaBox.setOutlineColor(sf::Color::Black);
 
     sf::Text kwotaTEKST((std::ostringstream{} << std::fixed << std::setprecision(2) << kwotaInput).str(), font, 24);
-    kwotaTEKST.setPosition(236,220);
+    kwotaTEKST.setPosition(236,280);
     kwotaTEKST.setFillColor(sf::Color::Black);
     
-
-    sf::RectangleShape kwotaBoxShadow = kwotaBox; // Tworzenie kopii prostokąta
-    kwotaBoxShadow.setPosition(235 + 2, 220 + 2); // Przesunięcie cienia
-    kwotaBoxShadow.setFillColor(sf::Color(30, 30, 30)); // Kolor cienia, można eksperymentować z wartościami
+    sf::RectangleShape kwotaBoxShadow = kwotaBox;
+    kwotaBoxShadow.setPosition(235 + 2, 280 + 2);
+    kwotaBoxShadow.setFillColor(sf::Color(30, 30, 30));
 
     sf::RectangleShape przelejButton(sf::Vector2f(200,50));
     przelejButton.setPosition(300,400);
@@ -118,44 +115,51 @@ int main() {
     przelejButtonShadow.setPosition(300+2,400+2);
     przelejButtonShadow.setFillColor(sf::Color(30, 30, 30));
 
-
-    //pasek
-
-    sf::RectangleShape bar(sf::Vector2f(800, 60));
+    sf::RectangleShape bar(sf::Vector2f(800, 80));
     bar.setPosition(0, 0);
     bar.setFillColor(sf::Color(0, 120, 52));
 
-    sf::RectangleShape myAcc(sf::Vector2f(150,50));
-    myAcc.setPosition(5,5);
+    sf::RectangleShape myAcc(sf::Vector2f(180,50));
+    myAcc.setPosition(16,15);
     myAcc.setFillColor(sf::Color(241, 178, 86));
+    myAcc.setOutlineThickness(1);
+    myAcc.setOutlineColor(sf::Color::Black);
 
-    sf::RectangleShape myPayments(sf::Vector2f(150,50));
-    myPayments.setPosition(165,5);
+    sf::RectangleShape myPayments(sf::Vector2f(180,50));
+    myPayments.setPosition(212,15);
     myPayments.setFillColor(sf::Color(241, 178, 86));
+    myPayments.setOutlineThickness(1);
+    myPayments.setOutlineColor(sf::Color::Black);
 
-    sf::RectangleShape myHistory(sf::Vector2f(150,50));
-    myHistory.setPosition(325,5);
+    sf::RectangleShape myHistory(sf::Vector2f(180,50));
+    myHistory.setPosition(408,15);
     myHistory.setFillColor(sf::Color(241, 178, 86));
+    myHistory.setOutlineThickness(1);
+    myHistory.setOutlineColor(sf::Color::Black);
 
-    sf::RectangleShape quit(sf::Vector2f(150,50));
-    quit.setPosition(485,5);
+    sf::RectangleShape quit(sf::Vector2f(180,50));
+    quit.setPosition(604,15);
     quit.setFillColor(sf::Color::Red);
+    quit.setOutlineThickness(1);
+    quit.setOutlineColor(sf::Color::Black);
 
     sf::RectangleShape doRegistration(sf::Vector2f(200,50));
     doRegistration.setPosition(300, 400);
     doRegistration.setFillColor(sf::Color::Red);
 
-    sf::RectangleShape left_box(sf::Vector2f(400,500));
-    left_box.setPosition(20,80);
+    sf::RectangleShape left_box(sf::Vector2f(400,520));
+    left_box.setPosition(0,80);
     left_box.setFillColor(sf::Color(228,214,214));
-    left_box.setOutlineThickness(1);
-    left_box.setOutlineColor(sf::Color::Black);
     
     sf::RectangleShape middle_box(sf::Vector2f(600,425));
-    middle_box.setPosition(100,100);
+    middle_box.setPosition(100,80);
     middle_box.setFillColor(sf::Color(228,214,214));
-    middle_box.setOutlineThickness(2);
+    middle_box.setOutlineThickness(1);
     middle_box.setOutlineColor(sf::Color::Black);
+
+    sf::RectangleShape middle_boxShadow(sf::Vector2f(600,425));
+    middle_boxShadow.setPosition(102,82);
+    middle_boxShadow.setFillColor(sf::Color::Black);
 
     sf::Text doRegistrationText("Zarejestruj sie!",font,20);
     doRegistrationText.setPosition(320,415);
@@ -169,22 +173,28 @@ int main() {
     bank.setPosition(315,100);
     bank.setFillColor(sf::Color::Black);
 
-    //pasekText
+    sf::Text doesntExists("Nie istnieje uzytkownik o takim adresie!",font, 16);
+    doesntExists.setPosition(240,200);
+    doesntExists.setFillColor(sf::Color::Red);
+
+    sf::Text transAccepted("Transakcja przebiegla pomyslnie!",font, 16);
+    transAccepted.setPosition(240,200);
+    transAccepted.setFillColor(sf::Color(0, 120, 52));
 
     sf::Text myAccText("Moje konto",font,24);
-    myAccText.setPosition(15,15);
+    myAccText.setPosition(45,26);
     myAccText.setFillColor(sf::Color::Black);
 
     sf::Text myPaymentsText("Platnosci",font,24);
-    myPaymentsText.setPosition(185,15);
+    myPaymentsText.setPosition(250,26);
     myPaymentsText.setFillColor(sf::Color::Black);
 
     sf::Text myHistoryText("Historia", font,24);
-    myHistoryText.setPosition(353,15);
+    myHistoryText.setPosition(450,26);
     myHistoryText.setFillColor(sf::Color::Black);
 
     sf::Text quitText("Wyjdz",font,24);
-    quitText.setPosition(522,15);
+    quitText.setPosition(655,26);
     quitText.setFillColor(sf::Color::Black);
 
     sf::Text RejectedText("Bledne dane, nie zalogowano",font,12);
@@ -202,6 +212,8 @@ int main() {
     bool kwotaActive = false;
     bool odbiorcaActive = false;
     bool isHoveredButton = false;
+    bool wrongEmail = false;
+    bool transaction_accepted = false;
 
     // Pętla główna programu
     while (window.isOpen()) {
@@ -296,6 +308,8 @@ int main() {
 
                         if(myHistory.getGlobalBounds().contains(mousePosF)){
                             currentState = History;
+                            history_load(userid, total_transactions);
+                            std::cout << total_transactions << std::endl;
                         }
                         
                         // Sprawdź czy quit jest nacisniety
@@ -305,8 +319,18 @@ int main() {
 
                         if(przelejButton.getGlobalBounds().contains(mousePosF)){
                             if(!odbiorcaInput.empty()){
-                                if(kwotaInput==!0){
-                                    
+                                if(!kwotaInput==0){
+                                    balance = balance - kwotaInput;
+                                    if(connect_for_transaction(userid,odbiorcaInput,balance, kwotaInput)==false){
+                                        wrongEmail = true;
+                                        transaction_accepted = false;
+                                        balance = balance + kwotaInput;
+                                    }else{
+                                        wrongEmail = false;
+                                        transaction_accepted = true;
+                                        odbiorcaInput = "";
+                                        kwotaInput = 0;
+                                    }
                                 }else{
                                     //kwota nie moze byc 0
                                 }
@@ -361,22 +385,14 @@ int main() {
                     }
 
                 }
-        
-        /*sf::Text useridText("userID: " + std::to_string(userid),font, 24);
-        useridText.setPosition(650,16);
-        useridText.setFillColor(sf::Color::Black);*/
 
         sf::Text myBalance("Stan konta: $" + std::to_string(balance), font, 24);
         myBalance.setFillColor(sf::Color::Black);
         if(currentState==MyAccount){
             myBalance.setPosition(50,100);
-        }else if(currentState==Transfers){
+        }else if(currentState==Transfers || currentState==wrongEmail){
             myBalance.setPosition(300,125);
         }
-
-        //sf::Text email("email: " + emailInput,font, 16);
-        //email.setPosition(50, 150);
-        //email.setFillColor(sf::Color::Black);
 
         sf::Texture logoTexture;
         if (!logoTexture.loadFromFile("bank.jpg")) {
@@ -394,20 +410,8 @@ int main() {
         right_logo.setScale(0.7, 0.7f);
         right_logo.setPosition(450,150);
 
-        sf::Texture monety;
-        monety.loadFromFile("monety.jpg");
-
-        sf::Sprite monety_zdj;
-        monety_zdj.setTexture(monety);
-        monety_zdj.setPosition(0,0);
-        monety_zdj.setScale(0.7,0.7);
-
-        //zmiana koloru dla przycisku
-        
-
         // Wyczyszczenie okna
         window.clear(sf::Color::White);
-        //currentState = MyAccount;//do wyjebania
         if (currentState == State::Login) {
             window.draw(container);
             window.draw(button);
@@ -437,7 +441,6 @@ int main() {
             window.draw(RejectedText);
         } else if (currentState == State::MyAccount) {
             window.draw(bar);
-            //window.draw(useridText);
             window.draw(myAcc);
             window.draw(myAccText);
             window.draw(myPayments);
@@ -449,12 +452,11 @@ int main() {
             window.draw(right_logo);
             window.draw(left_box);
             window.draw(myBalance);
-            //window.draw(email);
 
         } else if (currentState == State::Transfers) {
-            //window.draw(monety_zdj);
+            window.draw(middle_boxShadow);
+            window.draw(middle_box);
             window.draw(bar);
-            //window.draw(useridText);
             window.draw(myAcc);
             window.draw(myAccText);
             window.draw(myPayments);
@@ -463,7 +465,6 @@ int main() {
             window.draw(myHistoryText);
             window.draw(quit);
             window.draw(quitText);
-            window.draw(middle_box);
             window.draw(myBalance);
             window.draw(odbiorcaText);
             window.draw(odbiorcaBoxShadow);
@@ -476,9 +477,14 @@ int main() {
             window.draw(przelejButtonShadow);
             window.draw(przelejButton);
             window.draw(przelejButtonText);
+            if(wrongEmail==true){
+                window.draw(doesntExists);
+            }
+            if(transaction_accepted==true){
+                window.draw(transAccepted);
+            }
         } else if (currentState == State::History) {
             window.draw(bar);
-            //window.draw(useridText);
             window.draw(myAcc);
             window.draw(myAccText);
             window.draw(myPayments);
@@ -488,8 +494,7 @@ int main() {
             window.draw(quit);
             window.draw(quitText);
         }
-
-        // Wyświetlenie wszystkich zmian na ekranie
+        
         window.display();
     }
 

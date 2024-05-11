@@ -1,10 +1,11 @@
 #include "headers.h"
 
-bool checkLogin(const std::string& email, const std::string& password, int &userid) {
+bool checkLogin(const std::string& email, const std::string& password, int &userid, bool& not_connected) {
     // Połączenie z bazą danych
     MYSQL mysql;
     mysql_init(&mysql);
     if (!mysql_real_connect(&mysql, "127.0.0.1", "root", "", "bazad", 0, NULL, 0)) {
+        not_connected = true;
         std::cerr << "Błąd połączenia z bazą danych: " << mysql_error(&mysql) << std::endl;
         return false;
     }
@@ -163,7 +164,7 @@ bool connect_for_transaction(int& userid, std::string& adres_odbiorcy, int& bala
     return true;
 }
 
-bool history_load(int& userid, int& total_transactions, std::vector<std::vector<std::string>>& history){
+bool get_history(const std::string& email, int& userid, int& total_transactions, std::string*& historia, bool& koszty_or_przychody) {
     MYSQL mysql;
     mysql_init(&mysql);
     
@@ -171,7 +172,13 @@ bool history_load(int& userid, int& total_transactions, std::vector<std::vector<
         std::cerr << "Błąd połączenia z bazą danych: " << mysql_error(&mysql) << std::endl;
         return false;
     }
-    std::string count_transactions = "SELECT COUNT(*) FROM history WHERE id = " + std::to_string(userid) + ";";
+    
+    std::string count_transactions;
+    if (koszty_or_przychody) {
+        count_transactions = "SELECT COUNT(*) FROM history WHERE id = " + std::to_string(userid) + ";";
+    } else {
+        count_transactions = "SELECT COUNT(*) FROM history WHERE email_odbiorcy = '" + email + "';";
+    }
 
     mysql_query(&mysql, count_transactions.c_str());
 
@@ -182,9 +189,14 @@ bool history_load(int& userid, int& total_transactions, std::vector<std::vector<
 
     mysql_free_result(count_result);
 
-    std::string get_history = "SELECT * FROM history WHERE id = " + std::to_string(userid) + ";";
+    std::string get_history_query;
+    if (koszty_or_przychody) {
+        get_history_query = "SELECT `email_odbiorcy`, `kwota`, `data`, `godzina` FROM history WHERE id = " + std::to_string(userid) + ";";
+    } else {
+        get_history_query = "SELECT `email_odbiorcy`, `kwota`, `data`, `godzina` FROM history WHERE email_odbiorcy = '" + email + "';";
+    }
 
-    if (mysql_query(&mysql, get_history.c_str()) != 0) {
+    if (mysql_query(&mysql, get_history_query.c_str()) != 0) {
         std::cerr << "Błąd zapytania o historię transakcji: " << mysql_error(&mysql) << std::endl;
         mysql_close(&mysql);
         return false;
@@ -198,13 +210,17 @@ bool history_load(int& userid, int& total_transactions, std::vector<std::vector<
     }
 
     int num_fields = mysql_num_fields(result);
+    historia = new std::string[total_transactions]; // Dynamiczna alokacja tablicy stringów
+
+    int index = 0; // Indeks do zapisywania danych do tablicy historia
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(result))) {
-        std::vector<std::string> transaction_data;
+        std::stringstream transaction_data;
         for(int i = 0; i < num_fields; i++) {
-            transaction_data.push_back(row[i] ? row[i] : "NULL");
+            transaction_data << (row[i] ? row[i] : "NULL") << " ";
         }
-        history.push_back(transaction_data);
+        historia[index] = transaction_data.str(); // Zapisanie danych do tablicy
+        index++;
     }
 
     mysql_free_result(result);

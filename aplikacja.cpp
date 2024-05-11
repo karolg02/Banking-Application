@@ -1,6 +1,5 @@
 #include "headers.h"
 #include "checkLogin.cpp"
-#include "ksztalty.cpp"
 
 enum State {
     Login,
@@ -21,11 +20,30 @@ int main() {
     int balance;
     int kwotaInput = 0;
     int total_transactions;
+    int strona = 1;
+    int strona_help = 0;
 
-    std::vector<std::vector<std::string>> history;
+    // Zmienne wskazujące, które pole jest aktualnie aktywne
+    bool emailActive = false;
+    bool passwordActive = false;
+    bool kwotaActive = false;
+    bool odbiorcaActive = false;
+    bool isHoveredButton = false;
+    bool wrongEmail = false;
+    bool transaction_accepted = false;
+    bool not_connected = false;
+    bool koszty_clicked = false;
+    bool przychody_clicked = false;
+    bool koszty_or_przychody = true;
+    bool saldo_cant_be_on_debit = false;
+
+    std::string* historia = nullptr;
+
+    std::string przelewy;
 
     sf::Color firstmain(0, 120, 52);
     sf::Color secondmain(241, 178, 86);
+    sf::Color thirdmain(255,204,153);
 
     // Pobranie domyślnej czcionki systemowej
     sf::Font font;
@@ -35,6 +53,17 @@ int main() {
     }
 
     //logowanie poczatek
+
+        sf::Texture logoTexture;
+        if (!logoTexture.loadFromFile("bank.jpg")) {
+            // Obsługa błędu wczytywania obrazu
+            std::cerr << "Błąd wczytywania obrazu bank.jpg" << std::endl;
+        }
+
+        sf::Sprite minilogo;
+        minilogo.setTexture(logoTexture);
+        minilogo.setScale(0.3, 0.3f);
+        minilogo.setPosition(650, 16);
 
         // Tekst na przycisku
         sf::Text buttonText("Zaloguj sie!", font, 20);
@@ -75,20 +104,6 @@ int main() {
         doRegistration.setPosition(300, 400);
         doRegistration.setFillColor(sf::Color::Red);
 
-        sf::RectangleShape left_box(sf::Vector2f(400,520));
-        left_box.setPosition(0,80);
-        left_box.setFillColor(sf::Color(228,214,214));
-        
-        sf::RectangleShape middle_box(sf::Vector2f(600,425));
-        middle_box.setPosition(100,80);
-        middle_box.setFillColor(sf::Color(228,214,214));
-        middle_box.setOutlineThickness(1);
-        middle_box.setOutlineColor(sf::Color::Black);
-
-        sf::RectangleShape middle_boxShadow(sf::Vector2f(600,425));
-        middle_boxShadow.setPosition(102,82);
-        middle_boxShadow.setFillColor(sf::Color::Black);
-
         sf::Text doRegistrationText("Zarejestruj sie!",font,20);
         doRegistrationText.setPosition(320,415);
         doRegistrationText.setFillColor(sf::Color::Black);
@@ -121,6 +136,9 @@ int main() {
         RejectedText.setPosition(315,150);
         RejectedText.setFillColor(sf::Color::Black);
 
+        sf::Text not_connected_text("Brak polaczenia z baza danych!",font,12);
+        not_connected_text.setPosition(315,150);
+        not_connected_text.setFillColor(sf::Color::Black);
     //logowanie koniec
 
     //bar poczatek
@@ -155,7 +173,28 @@ int main() {
 
     //bar koniec
 
+    //myacc poczatek
+
+        sf::RectangleShape left_box(sf::Vector2f(400,520));
+        left_box.setPosition(0,80);
+        left_box.setFillColor(thirdmain);
+
+        sf::Sprite right_logo;
+        right_logo.setTexture(logoTexture);
+        right_logo.setScale(0.7, 0.7f);
+        right_logo.setPosition(450,150);
+
     //transakcje poczatek
+
+        sf::RectangleShape middle_box(sf::Vector2f(600,425));
+        middle_box.setPosition(100,80);
+        middle_box.setFillColor(sf::Color(thirdmain));
+        middle_box.setOutlineThickness(1);
+        middle_box.setOutlineColor(sf::Color::Black);
+
+        sf::RectangleShape middle_boxShadow(sf::Vector2f(600,427));
+        middle_boxShadow.setPosition(102,80);
+        middle_boxShadow.setFillColor(sf::Color::Black);
 
         sf::Text odbiorcaText("Odbiorca: ",font,24);
         odbiorcaText.setPosition(115,220);
@@ -195,7 +234,7 @@ int main() {
 
         sf::RectangleShape przelejButton(sf::Vector2f(200,50));
         przelejButton.setPosition(300,400);
-        przelejButton.setFillColor(sf::Color(250, 184, 86));
+        przelejButton.setFillColor(sf::Color(secondmain));//255,102,102
         przelejButton.setOutlineThickness(1);
         przelejButton.setOutlineColor(sf::Color::Black);
 
@@ -208,32 +247,75 @@ int main() {
         przelejButtonShadow.setFillColor(sf::Color(30, 30, 30));
 
         sf::Text doesntExists("Nie istnieje uzytkownik o takim adresie!",font, 16);
-        doesntExists.setPosition(240,200);
+        doesntExists.setPosition(250,200);
         doesntExists.setFillColor(sf::Color::Red);
 
         sf::Text transAccepted("Transakcja przebiegla pomyslnie!",font, 16);
         transAccepted.setPosition(240,200);
         transAccepted.setFillColor(firstmain);
 
+        sf::Text saldo_cant_be_on_debit_text("Brak srodkow do sfinalizowania operacji!",font,16);
+        saldo_cant_be_on_debit_text.setPosition(240,200);
+        saldo_cant_be_on_debit_text.setFillColor(sf::Color::Red);
+
     //transakcje koniec
 
     //historia poczatek
 
-        sf::RectangleShape left_site(sf::Vector2f(400,520));
-        left_site.setPosition(0,80);
-        left_site.setFillColor(sf::Color(228,214,214));
+        sf::RectangleShape history_background(sf::Vector2f(800,520));
+        history_background.setPosition(0,80);
+        //history_background.setFillColor(sf::Color(228,214,214));
+        history_background.setFillColor(sf::Color::White);
 
-        sf::RectangleShape right_site(sf::Vector2f(400,520));
-        right_site.setPosition(400,80);
-        right_site.setFillColor(sf::Color::White);
+        sf::RectangleShape history_window(sf::Vector2f(700,400));
+        history_window.setPosition(50,145);
+        history_window.setFillColor(sf::Color(thirdmain));
+        history_window.setOutlineThickness(1);
+        history_window.setOutlineColor(sf::Color::Black);
 
-        sf::Text przychody("Przychody",font,24);
-        przychody.setPosition(600,300);
+        sf::RectangleShape history_window_shader(sf::Vector2f(700,400));
+        history_window_shader.setPosition(54,148);
+        history_window_shader.setFillColor(sf::Color::Black);
+
+        sf::RectangleShape koszty_click(sf::Vector2f(400,50));
+        koszty_click.setPosition(0,80);
+        koszty_click.setFillColor(sf::Color(255,102,102));
+        koszty_click.setOutlineThickness(1);
+        koszty_click.setOutlineColor(sf::Color::Black);
+
+        sf::RectangleShape przychody_click = koszty_click;
+        przychody_click.setPosition(400,80);
+        przychody_click.setFillColor(sf::Color(102,255,102));
+        przychody_click.setOutlineThickness(1);
+        przychody_click.setOutlineColor(sf::Color::Black);
+
+        sf::Text przychody("Przelewy przychodzace",font,24);
+        przychody.setPosition(470,90);
         przychody.setFillColor(sf::Color::Black);
         
-        sf::Text koszty("Koszty",font,24);
-        koszty.setPosition(200,300);
+        sf::Text koszty("Przelewy wychodzace",font,24);
+        koszty.setPosition(70,90);
         koszty.setFillColor(sf::Color::Black);
+
+        sf::RectangleShape right_arrow(sf::Vector2f(70,30));
+        right_arrow.setPosition(700,560);
+        right_arrow.setFillColor(secondmain);
+        right_arrow.setOutlineThickness(2);
+        right_arrow.setOutlineColor(sf::Color::Black);
+
+        sf::Text right_arrow_text(">>",font,20);
+        right_arrow_text.setPosition(720,562);
+        right_arrow_text.setFillColor(sf::Color::Black);
+
+        sf::RectangleShape left_arrow = right_arrow;
+        left_arrow.setPosition(30,560);
+        left_arrow.setFillColor(secondmain);
+        left_arrow.setOutlineThickness(2);
+        left_arrow.setOutlineColor(sf::Color::Black);
+
+        sf::Text left_arrow_text("<<",font,20);
+        left_arrow_text.setPosition(50,562);
+        left_arrow_text.setFillColor(sf::Color::Black);
 
     //historia koniec
 
@@ -241,15 +323,6 @@ int main() {
     std::string emailInput = "";
     std::string passwordInput = "";
     std::string odbiorcaInput = "";
-
-    // Zmienne wskazujące, które pole jest aktualnie aktywne
-    bool emailActive = false;
-    bool passwordActive = false;
-    bool kwotaActive = false;
-    bool odbiorcaActive = false;
-    bool isHoveredButton = false;
-    bool wrongEmail = false;
-    bool transaction_accepted = false;
 
     // Pętla główna programu
     while (window.isOpen()) {
@@ -270,14 +343,60 @@ int main() {
                     myHistory.setFillColor(sf::Color(39, 54, 85));
                 } else if(myPayments.getGlobalBounds().contains(mousePosF)){
                     myPayments.setFillColor(sf::Color(39, 54, 85));
-                } else if(przelejButton.getGlobalBounds().contains(mousePosF)){
-                    przelejButton.setFillColor(sf::Color(39, 54, 85));
                 }
                 else {
                     myAcc.setFillColor(sf::Color(250, 184, 86));
                     myHistory.setFillColor(sf::Color(250, 184, 86));
                     myPayments.setFillColor(sf::Color(250, 184, 86));
-                    przelejButton.setFillColor(sf::Color(250, 184, 86));
+                }
+
+                if(currentState==Transfers){
+                    if(przelejButton.getGlobalBounds().contains(mousePosF)){
+                        przelejButton.setFillColor(sf::Color(39, 54, 85));
+                    }
+                    else{
+                        przelejButton.setFillColor(sf::Color(secondmain));
+                    }
+                }
+
+                if(currentState==History){
+                    if(koszty_click.getGlobalBounds().contains(mousePosF)){
+                        koszty_click.setFillColor(sf::Color(39, 54, 85));
+                        koszty.setFillColor(sf::Color::Red);
+                        przychody_click.setFillColor(sf::Color(102,255,102));
+                        przychody.setFillColor(sf::Color::Black);
+                        right_arrow.setFillColor(secondmain);
+                        left_arrow.setFillColor(secondmain);
+                    } else if(przychody_click.getGlobalBounds().contains(mousePosF)){
+                        przychody_click.setFillColor(sf::Color(39,54,85));
+                        przychody.setFillColor(sf::Color::Green);
+                        koszty_click.setFillColor(sf::Color(255,102,102));
+                        koszty.setFillColor(sf::Color::Black);
+                        right_arrow.setFillColor(secondmain);
+                        left_arrow.setFillColor(secondmain);
+                    }else if(left_arrow.getGlobalBounds().contains(mousePosF)){
+                        left_arrow.setFillColor(sf::Color(39, 54, 85));
+                        right_arrow.setFillColor(secondmain);
+                        koszty_click.setFillColor(sf::Color(255,102,102));
+                        przychody_click.setFillColor(sf::Color(102,255,102));
+                        koszty.setFillColor(sf::Color::Black);
+                        przychody.setFillColor(sf::Color::Black);
+                    }else if(right_arrow.getGlobalBounds().contains(mousePosF)){
+                        right_arrow.setFillColor(sf::Color(39, 54, 85));
+                        left_arrow.setFillColor(secondmain);
+                        koszty_click.setFillColor(sf::Color(255,102,102));
+                        przychody_click.setFillColor(sf::Color(102,255,102));
+                        koszty.setFillColor(sf::Color::Black);
+                        przychody.setFillColor(sf::Color::Black);
+                    }
+                    else{
+                        koszty_click.setFillColor(sf::Color(255,102,102));
+                        przychody_click.setFillColor(sf::Color(102,255,102));
+                        koszty.setFillColor(sf::Color::Black);
+                        przychody.setFillColor(sf::Color::Black);
+                        right_arrow.setFillColor(secondmain);
+                        left_arrow.setFillColor(secondmain);
+                    }
                 }
 
 
@@ -322,60 +441,125 @@ int main() {
                             }
                         }
 
+                        if (currentState == History) {
+                            if (koszty_click.getGlobalBounds().contains(mousePosF)) {
+                                strona = 1;
+                                strona_help = 0;
+                                przelewy.clear();
+                                koszty_or_przychody = true;
+                                get_history(emailInput, userid, total_transactions, historia, koszty_or_przychody);
+                                for (int i = total_transactions - 10; i < total_transactions; i++) {
+                                    if (i >= 0 && i < total_transactions) {
+                                        przelewy += historia[i] + "\n\n";
+                                    }
+                                }
+                                koszty_clicked = true;
+                                przychody_clicked = false;
+                            }
+                            if (przychody_click.getGlobalBounds().contains(mousePosF)) {
+                                strona = 1;
+                                strona_help = 0;
+                                przelewy.clear();
+                                koszty_or_przychody = false;
+                                get_history(emailInput, userid, total_transactions, historia, koszty_or_przychody);
+                                for (int i = total_transactions - 10; i < total_transactions; i++) {
+                                    if (i >= 0 && i < total_transactions) {
+                                        przelewy += historia[i] + "\n\n";
+                                    }
+                                }
+                                przychody_clicked = true;
+                                koszty_clicked = false;
+                            }
+                            if (strona < total_transactions / 10+1) {
+                                if (right_arrow.getGlobalBounds().contains(mousePosF)) {
+                                    strona++;
+                                    strona_help += 10;
+                                    przelewy.clear();
+                                    int max_przelewy = 10;
+                                    int start_index = std::max(0, total_transactions - strona_help - max_przelewy); // Indeks początkowy
+                                    int end_index = std::max(0, total_transactions - strona_help); // Indeks końcowy
+
+                                    for (int i = start_index; i < end_index; i++) {
+                                        if (i >= 0 && i < total_transactions) {
+                                            przelewy += historia[i] + "\n\n";
+                                        }
+                                    }
+                                }
+                            }
+                            if (strona > 1) {
+                                if (left_arrow.getGlobalBounds().contains(mousePosF)) {
+                                    strona--;
+                                    strona_help -= 10;
+                                    przelewy.clear();
+                                    int max_przelewy = 10;
+                                    int start_index = std::max(0, total_transactions - strona_help - max_przelewy); // Indeks początkowy
+                                    int end_index = std::max(0, total_transactions - strona_help); // Indeks końcowy
+
+                                    for (int i = start_index; i < end_index; i++) {
+                                        if (i >= 0 && i < total_transactions) {
+                                            przelewy += historia[i] + "\n\n";
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            przychody_clicked = false;
+                            koszty_clicked = false;
+                        }
                         // Sprawdź, czy naciśnięto
-                        if (button.getGlobalBounds().contains(mousePosF)) {
-                            if (checkLogin(emailInput, passwordInput, userid)) {
+                        if(currentState==Login || currentState==Rejected){
+                            if (button.getGlobalBounds().contains(mousePosF)) {
+                            if (checkLogin(emailInput, passwordInput, userid, not_connected)) {
                                 currentState = State::MyAccount; 
                                 std::cout<< "Nr id to: " << userid << std:: endl;
                                 getBalance(userid, balance);
+                                get_history(emailInput, userid, total_transactions, historia, koszty_or_przychody);
                             } else {
-                                std::cout << "Błedny email lub haslo!" << std::endl;
                                 currentState = State::Rejected;
                             }
                         }
-
-                        if(myAcc.getGlobalBounds().contains(mousePosF)){
-                            currentState = MyAccount;
                         }
 
-                        if(myPayments.getGlobalBounds().contains(mousePosF)){
-                            currentState = Transfers;
-                        }
+                        if(!(currentState == Login || currentState == Rejected)){
+                            if(myAcc.getGlobalBounds().contains(mousePosF)){
+                                currentState = MyAccount;
+                            }
 
-                        if(myHistory.getGlobalBounds().contains(mousePosF)){
-                            currentState = History;
-                            history_load(userid, total_transactions, history);
-                            std::cout << total_transactions << std::endl;
-                            int start_index = std::max(0, total_transactions - 10); // Początkowy indeks dla ostatnich 10 transakcji
-                            for(int i = start_index; i < total_transactions; ++i) {
-                                for(const auto& field : history[i]) {
-                                    std::cout << field << " ";
-                                }
-                                std::cout << std::endl;
+                            if(myPayments.getGlobalBounds().contains(mousePosF)){
+                                currentState = Transfers;
+                            }
+
+                            if(myHistory.getGlobalBounds().contains(mousePosF)){
+                                currentState = History;
+                            }
+                            
+                            // Sprawdź czy quit jest nacisniety
+                            if (quit.getGlobalBounds().contains(mousePosF)){
+                                //ulepszyc zeby byl komunikat
+                                window.close();
                             }
                         }
                         
-                        // Sprawdź czy quit jest nacisniety
-                        if (quit.getGlobalBounds().contains(mousePosF)){
-                            window.close();
-                        }
-
                         if(przelejButton.getGlobalBounds().contains(mousePosF)){
                             if(!odbiorcaInput.empty()){
                                 if(!kwotaInput==0){
-                                    balance = balance - kwotaInput;
-                                    if(connect_for_transaction(userid,odbiorcaInput,balance, kwotaInput)==false){
-                                        wrongEmail = true;
-                                        transaction_accepted = false;
-                                        balance = balance + kwotaInput;
+                                    if(balance - kwotaInput >0){
+                                        balance = balance - kwotaInput;
+                                        if(connect_for_transaction(userid,odbiorcaInput,balance, kwotaInput)==false){
+                                            wrongEmail = true;
+                                            saldo_cant_be_on_debit = false;
+                                            transaction_accepted = false;
+                                            balance = balance + kwotaInput;
+                                        }else{
+                                            saldo_cant_be_on_debit = false;
+                                            wrongEmail = false;
+                                            transaction_accepted = true;
+                                        }
                                     }else{
+                                        saldo_cant_be_on_debit = true;
                                         wrongEmail = false;
-                                        transaction_accepted = true;
-                                        odbiorcaInput = "";
-                                        kwotaInput = 0;
+                                        transaction_accepted = false;
                                     }
-                                }else{
-                                    //kwota nie moze byc 0
                                 }
                             }
                             else{
@@ -428,7 +612,23 @@ int main() {
                     }
 
                 }
+        // history
+        sf::RectangleShape between_arrow(sf::Vector2f(160,30));
+        between_arrow.setPosition(320,560);
+        between_arrow.setFillColor(secondmain);
+        if(koszty_or_przychody==true){
+            between_arrow.setFillColor(sf::Color(255,102,102));
+        }else{
+            between_arrow.setFillColor(sf::Color(102,255,102));
+        }
+        between_arrow.setOutlineColor(sf::Color::Black);
+        between_arrow.setOutlineThickness(2);
 
+        sf::Text between_arrow_text("Strona " + std::to_string(strona),font,24);
+        between_arrow_text.setPosition(355,562);
+        between_arrow_text.setFillColor(sf::Color::Black);
+
+        // myAcc
         sf::Text myBalance("Stan konta: $" + std::to_string(balance), font, 24);
         myBalance.setFillColor(sf::Color::Black);
         if(currentState==MyAccount){
@@ -452,6 +652,11 @@ int main() {
         right_logo.setTexture(logoTexture);
         right_logo.setScale(0.7, 0.7f);
         right_logo.setPosition(450,150);
+
+        //historia
+        sf::Text kosztyTXT(przelewy,font ,16);
+        kosztyTXT.setPosition(90,162);
+        kosztyTXT.setFillColor(sf::Color::Black);
 
         // Wyczyszczenie okna
         window.clear(sf::Color::White);
@@ -481,7 +686,12 @@ int main() {
             window.draw(doRegistrationText);
             window.draw(textRegistration);
             window.draw(bank);
-            window.draw(RejectedText);
+            if(not_connected==true){
+                window.draw(not_connected_text);
+            }
+            else{
+                window.draw(RejectedText);
+            }
         } else if (currentState == State::MyAccount) {
             window.draw(bar);
             window.draw(myAcc);
@@ -526,7 +736,13 @@ int main() {
             if(transaction_accepted==true){
                 window.draw(transAccepted);
             }
+            if(saldo_cant_be_on_debit==true){
+                window.draw(saldo_cant_be_on_debit_text);
+            }
         } else if (currentState == State::History) {
+            window.draw(history_background);
+            window.draw(koszty_click);
+            window.draw(przychody_click);
             window.draw(bar);
             window.draw(myAcc);
             window.draw(myAccText);
@@ -536,14 +752,42 @@ int main() {
             window.draw(myHistoryText);
             window.draw(quit);
             window.draw(quitText);
-            window.draw(left_site);
-            window.draw(right_site);
             window.draw(przychody);
             window.draw(koszty);
+            if(koszty_clicked==true){
+                window.draw(history_window_shader);
+                window.draw(history_window);
+                window.draw(kosztyTXT);
+                if(strona < total_transactions / 10+1){
+                    window.draw(right_arrow);
+                    window.draw(right_arrow_text);
+                }
+                window.draw(between_arrow);
+                window.draw(between_arrow_text);
+                if(strona>1){
+                    window.draw(left_arrow);
+                    window.draw(left_arrow_text);
+                }
+            }else if(przychody_clicked==true){
+                window.draw(history_window_shader);
+                window.draw(history_window);
+                window.draw(kosztyTXT);
+                if(strona < total_transactions / 10+1){
+                    window.draw(right_arrow);
+                    window.draw(right_arrow_text);
+                }
+                window.draw(between_arrow);
+                window.draw(between_arrow_text);
+                if(strona>1){
+                    window.draw(left_arrow);
+                    window.draw(left_arrow_text);
+                }
+            }
         }
-        
         window.display();
     }
+
+    delete[] historia;
 
     return 0;
 }

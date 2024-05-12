@@ -1,9 +1,10 @@
 #include "headers.h"
-#include "checkLogin.cpp"
+#include "baza_connect.cpp"
 
 enum State {
     Login,
     Rejected,
+    Register,
     MyAccount,
     Transfers,
     History,
@@ -25,7 +26,9 @@ int main() {
 
     // Zmienne wskazujące, które pole jest aktualnie aktywne
     bool emailActive = false;
+    bool emailActiveAgain = false;
     bool passwordActive = false;
+    bool passwordActiveAgain = false;
     bool kwotaActive = false;
     bool odbiorcaActive = false;
     bool isHoveredButton = false;
@@ -36,6 +39,12 @@ int main() {
     bool przychody_clicked = false;
     bool koszty_or_przychody = true;
     bool saldo_cant_be_on_debit = false;
+    bool show_exit = false;
+    bool quit_yes_or_no = false;
+    bool show_checkmark = false;
+    bool password_not_equal = false;
+    bool email_not_equal = false;
+    bool registered = false;
 
     std::string* historia = nullptr;
 
@@ -72,25 +81,27 @@ int main() {
 
         // Pole tekstowe dla email
         sf::Text emailText("Email", font, 16);
-        emailText.setPosition(276, 180);
-        emailText.setFillColor(sf::Color::Black);
 
         sf::RectangleShape emailBox(sf::Vector2f(250, 20));
-        emailBox.setPosition(275, 180);
-        emailBox.setFillColor(sf::Color::White);
-        emailBox.setOutlineThickness(1);
-        emailBox.setOutlineColor(sf::Color::Black);
 
-        // Pole tekstowe dla hasła
         sf::Text passwordText("Haslo", font, 16);
-        passwordText.setPosition(276, 240);
-        passwordText.setFillColor(sf::Color::Black);
 
         sf::RectangleShape passwordBox(sf::Vector2f(250, 20));
-        passwordBox.setPosition(275, 240);
-        passwordBox.setFillColor(sf::Color::White);
-        passwordBox.setOutlineThickness(1);
-        passwordBox.setOutlineColor(sf::Color::Black);
+
+        if(currentState==Login || currentState==Rejected){
+            emailText.setPosition(276, 180);
+            emailText.setFillColor(sf::Color::Black);
+            emailBox.setPosition(275, 180);
+            emailBox.setFillColor(sf::Color::White);
+            emailBox.setOutlineThickness(1);
+            emailBox.setOutlineColor(sf::Color::Black);
+            passwordText.setPosition(276, 240);
+            passwordText.setFillColor(sf::Color::Black);
+            passwordBox.setPosition(275, 240);
+            passwordBox.setFillColor(sf::Color::White);
+            passwordBox.setOutlineThickness(1);
+            passwordBox.setOutlineColor(sf::Color::Black);
+        }
 
         sf::RectangleShape button(sf::Vector2f(150, 50));
         button.setPosition(325, 300);
@@ -100,14 +111,6 @@ int main() {
         container.setPosition(200,50);
         container.setFillColor(firstmain);
 
-        sf::RectangleShape doRegistration(sf::Vector2f(200,50));
-        doRegistration.setPosition(300, 400);
-        doRegistration.setFillColor(sf::Color::Red);
-
-        sf::Text doRegistrationText("Zarejestruj sie!",font,20);
-        doRegistrationText.setPosition(320,415);
-        doRegistrationText.setFillColor(sf::Color::Black);
-
         sf::Text textRegistration("Nie masz konta? Zarejestruj sie ponizej", font,12);
         textRegistration.setPosition(285,380);
         textRegistration.setFillColor(sf::Color::Black);
@@ -115,22 +118,6 @@ int main() {
         sf::Text bank("Bank Kar SA",font,30);
         bank.setPosition(315,100);
         bank.setFillColor(sf::Color::Black);
-
-        sf::Text myAccText("Moje konto",font,24);
-        myAccText.setPosition(45,26);
-        myAccText.setFillColor(sf::Color::Black);
-
-        sf::Text myPaymentsText("Platnosci",font,24);
-        myPaymentsText.setPosition(250,26);
-        myPaymentsText.setFillColor(sf::Color::Black);
-
-        sf::Text myHistoryText("Historia", font,24);
-        myHistoryText.setPosition(450,26);
-        myHistoryText.setFillColor(sf::Color::Black);
-
-        sf::Text quitText("Wyjdz",font,24);
-        quitText.setPosition(655,26);
-        quitText.setFillColor(sf::Color::Black);
 
         sf::Text RejectedText("Bledne dane, nie zalogowano",font,12);
         RejectedText.setPosition(315,150);
@@ -140,6 +127,84 @@ int main() {
         not_connected_text.setPosition(315,150);
         not_connected_text.setFillColor(sf::Color::Black);
     //logowanie koniec
+
+    //register poczatek
+
+        sf::RectangleShape doRegistration(sf::Vector2f(200,50));
+        doRegistration.setPosition(300, 400);
+        doRegistration.setFillColor(sf::Color::Red);
+
+        sf::Text doRegistrationText("Zarejestruj sie!",font,20);
+        doRegistrationText.setPosition(320,415);
+        doRegistrationText.setFillColor(sf::Color::Black);
+
+        sf::Text rejestracja_text("Formularz rejestracyjny",font ,24);
+        rejestracja_text.setPosition(265,150);
+        rejestracja_text.setFillColor(sf::Color::Black);
+
+        sf::Text emailTextAgain("Powtorz Email", font, 16);
+        emailTextAgain.setPosition(276, 230);
+        emailTextAgain.setFillColor(sf::Color::Black);
+        
+        sf::RectangleShape emailBoxAgain(sf::Vector2f(250, 20));
+        emailBoxAgain.setOutlineThickness(1);
+        emailBoxAgain.setOutlineColor(sf::Color::Black);
+        emailBoxAgain.setPosition(275, 230);
+        emailBoxAgain.setFillColor(sf::Color::White);
+
+        sf::Text passwordTextAgain("Powtorz haslo", font, 16);
+        passwordTextAgain.setPosition(276, 290);
+        passwordTextAgain.setFillColor(sf::Color::Black);
+
+        sf::RectangleShape passwordBoxAgain(sf::Vector2f(250, 20));
+        passwordBoxAgain.setOutlineThickness(1);
+        passwordBoxAgain.setOutlineColor(sf::Color::Black);
+        passwordBoxAgain.setPosition(275, 290);
+        passwordBoxAgain.setFillColor(sf::Color::White);
+
+        sf::RectangleShape registerButton(sf::Vector2f(200,50));
+        registerButton.setPosition(300,400);
+        registerButton.setFillColor(secondmain);
+        registerButton.setOutlineThickness(1);
+        registerButton.setOutlineColor(sf::Color::Black);
+
+        sf::Text registerButton_text("Stworz konto",font,24);
+        registerButton_text.setPosition(320,410);
+        registerButton_text.setFillColor(sf::Color::Black);
+
+        sf::Text text_to_checkmark("Potwierdzam, ze przeczytalem regulamin",font,12);
+        text_to_checkmark.setPosition(260,350);
+        text_to_checkmark.setFillColor(sf::Color::Black);
+
+        sf::RectangleShape checkbox(sf::Vector2f(20, 20));
+        checkbox.setPosition(520, 347);
+        checkbox.setFillColor(sf::Color::White);
+        checkbox.setOutlineThickness(1);
+        checkbox.setOutlineColor(sf::Color::Black);
+
+        sf::Text checkmark("x", font, 20);
+        checkmark.setPosition(524, 343);
+        checkmark.setFillColor(sf::Color::Black);
+
+        sf::Text password_not_equal_text("Pola hasel nie sa rowne!",font,20);
+        password_not_equal_text.setPosition(280,320);
+        password_not_equal_text.setFillColor(secondmain);
+
+        sf::Text email_not_equal_text("Pola email nie sa rowne!",font,20);
+        email_not_equal_text.setPosition(280,320);
+        email_not_equal_text.setFillColor(secondmain);
+
+        sf::RectangleShape registered_window(sf::Vector2f(250,250));
+        registered_window.setPosition(275,175);
+        registered_window.setFillColor(secondmain);
+        registered_window.setOutlineThickness(1);
+        registered_window.setOutlineColor(sf::Color::Black);
+
+        sf::Text registered_window_text("Zarejestrowano\n   pomyslnie!",font,24);
+        registered_window_text.setPosition(310,265);
+        registered_window_text.setFillColor(sf::Color::Black);
+
+    //register koniec
 
     //bar poczatek
 
@@ -167,9 +232,57 @@ int main() {
 
         sf::RectangleShape quit(sf::Vector2f(180,50));
         quit.setPosition(604,15);
-        quit.setFillColor(sf::Color::Red);
+        quit.setFillColor(secondmain);
         quit.setOutlineThickness(1);
         quit.setOutlineColor(sf::Color::Black);
+
+        sf::Text myAccText("Moje konto",font,24);
+        myAccText.setPosition(45,26);
+        myAccText.setFillColor(sf::Color::Black);
+
+        sf::Text myPaymentsText("Platnosci",font,24);
+        myPaymentsText.setPosition(250,26);
+        myPaymentsText.setFillColor(sf::Color::Black);
+
+        sf::Text myHistoryText("Historia", font,24);
+        myHistoryText.setPosition(450,26);
+        myHistoryText.setFillColor(sf::Color::Black);
+
+        sf::Text quitText("Wyjdz",font,24);
+        quitText.setPosition(655,26);
+        quitText.setFillColor(sf::Color::Black);
+
+        sf::RectangleShape exit_box(sf::Vector2f(300,200));
+        exit_box.setPosition(250,200);
+        exit_box.setFillColor(firstmain);
+
+        sf::RectangleShape exit_box_shadow(sf::Vector2f(304,204));
+        exit_box_shadow.setPosition(248,198);
+        exit_box_shadow.setFillColor(sf::Color::Black);
+
+        sf::Text exit_box_text("Czy na pewno chcesz wyjsc?", font ,20);
+        exit_box_text.setPosition(260,220);
+        exit_box_text.setFillColor(sf::Color::White);
+
+        sf::RectangleShape exit_left_box(sf::Vector2f(120,70));
+        exit_left_box.setPosition(270,290);
+        exit_left_box.setFillColor(secondmain);
+        exit_left_box.setOutlineThickness(1);
+        exit_left_box.setOutlineColor(sf::Color::Black);
+
+        sf::Text exit_left_box_text("Tak",font,24);
+        exit_left_box_text.setPosition(310,310);
+        exit_left_box_text.setFillColor(sf::Color::Black);
+
+        sf::RectangleShape exit_right_box = exit_left_box;
+        exit_right_box.setPosition(410,290);
+        exit_right_box.setFillColor(secondmain);
+        exit_right_box.setOutlineThickness(1);
+        exit_right_box.setOutlineColor(sf::Color::Black);
+
+        sf::Text exit_right_box_text("Nie",font,24);
+        exit_right_box_text.setPosition(450,310);
+        exit_right_box_text.setFillColor(sf::Color::Black);
 
     //bar koniec
 
@@ -183,6 +296,10 @@ int main() {
         right_logo.setTexture(logoTexture);
         right_logo.setScale(0.7, 0.7f);
         right_logo.setPosition(450,150);
+
+        //najnowsza transakcja
+
+        //najnoszy przychod
 
     //transakcje poczatek
 
@@ -321,7 +438,9 @@ int main() {
 
     // Zmienne przechowujące wprowadzone dane
     std::string emailInput = "";
+    std::string emailInputAgain= "";
     std::string passwordInput = "";
+    std::string passwordInputAgain = "";
     std::string odbiorcaInput = "";
 
     // Pętla główna programu
@@ -337,17 +456,22 @@ int main() {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                 sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
-                if (myAcc.getGlobalBounds().contains(mousePosF)) {
+                if(!show_exit){
+                    if (myAcc.getGlobalBounds().contains(mousePosF)) {
                     myAcc.setFillColor(sf::Color(39, 54, 85));
-                } else if(myHistory.getGlobalBounds().contains(mousePosF)){
-                    myHistory.setFillColor(sf::Color(39, 54, 85));
-                } else if(myPayments.getGlobalBounds().contains(mousePosF)){
-                    myPayments.setFillColor(sf::Color(39, 54, 85));
-                }
-                else {
-                    myAcc.setFillColor(sf::Color(250, 184, 86));
-                    myHistory.setFillColor(sf::Color(250, 184, 86));
-                    myPayments.setFillColor(sf::Color(250, 184, 86));
+                    } else if(myHistory.getGlobalBounds().contains(mousePosF)){
+                        myHistory.setFillColor(sf::Color(39, 54, 85));
+                    } else if(myPayments.getGlobalBounds().contains(mousePosF)){
+                        myPayments.setFillColor(sf::Color(39, 54, 85));
+                    } else if(quit.getGlobalBounds().contains(mousePosF)){
+                        quit.setFillColor(sf::Color::Red);
+                    }
+                    else {
+                        myAcc.setFillColor(secondmain);
+                        myHistory.setFillColor(secondmain);
+                        myPayments.setFillColor(secondmain);
+                        quit.setFillColor(secondmain);
+                    }
                 }
 
                 if(currentState==Transfers){
@@ -399,6 +523,19 @@ int main() {
                     }
                 }
 
+                if(show_exit){
+                    if(exit_left_box.getGlobalBounds().contains(mousePosF)){
+                        exit_left_box.setFillColor(sf::Color::Red);
+                        exit_right_box.setFillColor(secondmain);
+                    }else if(exit_right_box.getGlobalBounds().contains(mousePosF)){
+                        exit_right_box.setFillColor(sf::Color(39, 54, 85));
+                        exit_left_box.setFillColor(secondmain);
+                    }
+                    else{
+                        exit_left_box.setFillColor(secondmain);
+                        exit_right_box.setFillColor(secondmain);
+                    }
+                }
 
                 }
 
@@ -408,7 +545,6 @@ int main() {
                         sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
                         if(currentState==Login || currentState==Rejected){
-                            // Sprawdź, czy kliknięcie nastąpiło w polu email
                             if (emailBox.getGlobalBounds().contains(mousePosF)) {
                                 emailActive = true;
                                 passwordActive = false;
@@ -416,12 +552,87 @@ int main() {
                                 emailActive = false;
                             }
 
-                            // Sprawdź, czy kliknięcie nastąpiło w polu hasła
                             if (passwordBox.getGlobalBounds().contains(mousePosF)) {
                                 passwordActive = true;
                                 emailActive = false;
                             } else {
                                 passwordActive = false;
+                            }
+                            if (doRegistration.getGlobalBounds().contains(mousePosF)){
+                                currentState = Register;
+                            }
+                        }
+
+                        if(currentState==Register){
+                            if (emailBox.getGlobalBounds().contains(mousePosF)) {
+                                emailActive = true;
+                                emailActiveAgain = false;
+                                passwordActive = false;
+                                passwordActiveAgain = false;
+                            } else {
+                                emailActive = false;
+                            }
+
+                            if (emailBoxAgain.getGlobalBounds().contains(mousePosF)) {
+                                emailActiveAgain = true;
+                                emailActive = false;
+                                passwordActive = false;
+                                passwordActiveAgain = false;
+                            } else {
+                                emailActiveAgain = false;
+                            }
+
+                            if (passwordBox.getGlobalBounds().contains(mousePosF)) {
+                                passwordActive = true;
+                                emailActive = false;
+                                emailActiveAgain = false;
+                                passwordActiveAgain = false;
+                            } else {
+                                passwordActive = false;
+                            }
+
+                            if (passwordBoxAgain.getGlobalBounds().contains(mousePosF)) {
+                                passwordActiveAgain = true;
+                                passwordActive = false;
+                                emailActive = false;
+                                emailActiveAgain = false;
+                            } else {
+                                passwordActiveAgain = false;
+                            }
+                            
+                            if (checkbox.getGlobalBounds().contains(mousePosF)){
+                                if(!show_checkmark){
+                                    show_checkmark = true;
+                                }
+                                else{
+                                    show_checkmark = false;
+                                }
+                            }
+
+                            if(passwordInput!=passwordInputAgain){
+                                password_not_equal = true;
+                            }else{
+                                password_not_equal = false;
+                            }
+
+                            if(emailInput!=emailInputAgain){
+                                email_not_equal = true;
+                            }else{
+                                email_not_equal = false;
+                            }
+
+                            if((registerButton.getGlobalBounds().contains(mousePosF)) && (password_not_equal == false) && (email_not_equal == false) && (show_checkmark==true)){
+                                registered = true;
+                            }
+                            if(registered){
+                                if(registered_window.getGlobalBounds().contains(mousePosF)){
+                                    registered = false;
+                                    emailInput = "";
+                                    passwordInput = "";
+                                    emailText.setString("Email");
+                                    passwordText.setString("Haslo");
+                                    currentState = Login;
+                                }
                             }
                         }
 
@@ -507,7 +718,7 @@ int main() {
                             koszty_clicked = false;
                         }
                         // Sprawdź, czy naciśnięto
-                        if(currentState==Login || currentState==Rejected){
+                        if((currentState==Login || currentState==Rejected)){
                             if (button.getGlobalBounds().contains(mousePosF)) {
                             if (checkLogin(emailInput, passwordInput, userid, not_connected)) {
                                 currentState = State::MyAccount; 
@@ -520,7 +731,7 @@ int main() {
                         }
                         }
 
-                        if(!(currentState == Login || currentState == Rejected)){
+                        if(!(currentState == Login || currentState == Rejected || currentState == Register || show_exit == true)){
                             if(myAcc.getGlobalBounds().contains(mousePosF)){
                                 currentState = MyAccount;
                             }
@@ -535,9 +746,16 @@ int main() {
                             
                             // Sprawdź czy quit jest nacisniety
                             if (quit.getGlobalBounds().contains(mousePosF)){
-                                //ulepszyc zeby byl komunikat
-                                window.close();
+                                show_exit = true;
                             }
+                        }
+                        if(!(currentState == Login || currentState == Rejected) && show_exit==true){
+                            if(exit_left_box.getGlobalBounds().contains(mousePosF)){
+                            window.close();
+                        }
+                        else if(exit_right_box.getGlobalBounds().contains(mousePosF)){
+                            show_exit = false;
+                        }
                         }
                         
                         if(przelejButton.getGlobalBounds().contains(mousePosF)){
@@ -570,7 +788,7 @@ int main() {
                     }
                     // Obsługa wprowadzania tekstu
                     if (event.type == sf::Event::TextEntered) {
-                        // Pole email
+                        // Email
                         if (emailActive) {
                             if (event.text.unicode == 8 && !emailInput.empty()) { // Backspace
                                 emailInput.pop_back();
@@ -578,8 +796,23 @@ int main() {
                                 emailInput += static_cast<char>(event.text.unicode);
                             }
                             emailText.setString(emailInput);
+                            if(emailInput.empty()){
+                                emailText.setString("Email");
+                            }
                         }
-                        // Pole hasla
+                        // Ponownie Email
+                        if (emailActiveAgain) {
+                            if (event.text.unicode == 8 && !emailInputAgain.empty()) { // Backspace
+                                emailInputAgain.pop_back();
+                            } else if (event.text.unicode < 128 && emailInputAgain.size() < 50 && event.text.unicode != 8) {
+                                emailInputAgain += static_cast<char>(event.text.unicode);
+                            }
+                            emailTextAgain.setString(emailInputAgain);
+                            if(emailInputAgain.empty()){
+                                emailTextAgain.setString("Powtorz email");
+                            }
+                        }
+                        // Haslo
                         if (passwordActive) {
                             if (event.text.unicode == 8 && !passwordInput.empty()) { // Backspace
                                 passwordInput.pop_back();
@@ -587,6 +820,21 @@ int main() {
                                 passwordInput += static_cast<char>(event.text.unicode);
                             }
                             passwordText.setString(std::string(passwordInput.size(), '*')); // Zamień hasło na gwiazdki
+                            if(passwordInput.empty()){
+                                passwordText.setString("Haslo");
+                            }
+                        }
+                        // Ponownie Haslo
+                        if (passwordActiveAgain) {
+                            if (event.text.unicode == 8 && !passwordInputAgain.empty()) { // Backspace
+                                passwordInputAgain.pop_back();
+                            } else if (event.text.unicode < 128 && passwordInputAgain.size() < 50 && event.text.unicode != 8) {
+                                passwordInputAgain += static_cast<char>(event.text.unicode);
+                            }
+                            passwordTextAgain.setString(std::string(passwordInputAgain.size(), '*')); // Zamień hasło na gwiazdki
+                            if(passwordInputAgain.empty()){
+                                passwordTextAgain.setString("Powtorz haslo");
+                            }
                         }
                         // Pole odbiorcy
                         if (odbiorcaActive) {
@@ -612,6 +860,25 @@ int main() {
                     }
 
                 }
+        // register
+        if(currentState==Register){
+            emailText.setPosition(276, 200);
+            emailText.setFillColor(sf::Color::Black);
+
+            emailBox.setPosition(275, 200);
+            emailBox.setFillColor(sf::Color::White);
+            emailBox.setOutlineThickness(1);
+            emailBox.setOutlineColor(sf::Color::Black);
+
+            passwordText.setPosition(276, 260);
+            passwordText.setFillColor(sf::Color::Black);
+
+            passwordBox.setPosition(275, 260);
+            passwordBox.setFillColor(sf::Color::White);
+            passwordBox.setOutlineThickness(1);
+            passwordBox.setOutlineColor(sf::Color::Black);
+        }
+
         // history
         sf::RectangleShape between_arrow(sf::Vector2f(160,30));
         between_arrow.setPosition(320,560);
@@ -633,7 +900,7 @@ int main() {
         myBalance.setFillColor(sf::Color::Black);
         if(currentState==MyAccount){
             myBalance.setPosition(50,100);
-        }else if(currentState==Transfers || currentState==wrongEmail){
+        }else if(currentState==Transfers){
             myBalance.setPosition(300,125);
         }
 
@@ -673,7 +940,7 @@ int main() {
             window.draw(doRegistrationText);
             window.draw(textRegistration);
             window.draw(bank);
-        }else if(currentState == State::Rejected){
+        } else if (currentState == State::Rejected){
             window.draw(container);
             window.draw(button);
             window.draw(minilogo);
@@ -686,11 +953,43 @@ int main() {
             window.draw(doRegistrationText);
             window.draw(textRegistration);
             window.draw(bank);
-            if(not_connected==true){
+            if(not_connected){
                 window.draw(not_connected_text);
             }
             else{
                 window.draw(RejectedText);
+            }
+        } else if (currentState == State::Register){
+            //dodac warunek do bar
+            window.draw(container);
+            window.draw(minilogo);
+            window.draw(bank);
+            window.draw(rejestracja_text);
+            window.draw(emailBox);
+            window.draw(passwordBox);
+            window.draw(emailText);
+            window.draw(passwordText);
+            window.draw(emailBoxAgain);
+            window.draw(passwordBoxAgain);
+            window.draw(emailTextAgain);
+            window.draw(passwordTextAgain);
+            window.draw(registerButton);
+            window.draw(registerButton_text);
+            window.draw(text_to_checkmark);
+            window.draw(checkbox);
+            if(show_checkmark){
+                window.draw(checkmark);
+            }
+            if(email_not_equal){
+                window.draw(email_not_equal_text);
+            }else{
+                if(password_not_equal){
+                    window.draw(password_not_equal_text);
+                }
+            }
+            if(registered){
+                window.draw(registered_window);
+                window.draw(registered_window_text);
             }
         } else if (currentState == State::MyAccount) {
             window.draw(bar);
@@ -705,7 +1004,15 @@ int main() {
             window.draw(right_logo);
             window.draw(left_box);
             window.draw(myBalance);
-
+            if(show_exit){
+                window.draw(exit_box_shadow);
+                window.draw(exit_box);
+                window.draw(exit_box_text);
+                window.draw(exit_left_box);
+                window.draw(exit_right_box);
+                window.draw(exit_right_box_text);
+                window.draw(exit_left_box_text);
+            }
         } else if (currentState == State::Transfers) {
             window.draw(middle_boxShadow);
             window.draw(middle_box);
@@ -730,14 +1037,23 @@ int main() {
             window.draw(przelejButtonShadow);
             window.draw(przelejButton);
             window.draw(przelejButtonText);
-            if(wrongEmail==true){
+            if(wrongEmail){
                 window.draw(doesntExists);
             }
-            if(transaction_accepted==true){
+            if(transaction_accepted){
                 window.draw(transAccepted);
             }
-            if(saldo_cant_be_on_debit==true){
+            if(saldo_cant_be_on_debit){
                 window.draw(saldo_cant_be_on_debit_text);
+            }
+            if(show_exit){
+                window.draw(exit_box_shadow);
+                window.draw(exit_box);
+                window.draw(exit_box_text);
+                window.draw(exit_left_box);
+                window.draw(exit_right_box);
+                window.draw(exit_right_box_text);
+                window.draw(exit_left_box_text);
             }
         } else if (currentState == State::History) {
             window.draw(history_background);
@@ -754,7 +1070,7 @@ int main() {
             window.draw(quitText);
             window.draw(przychody);
             window.draw(koszty);
-            if(koszty_clicked==true){
+            if(koszty_clicked){
                 window.draw(history_window_shader);
                 window.draw(history_window);
                 window.draw(kosztyTXT);
@@ -768,7 +1084,7 @@ int main() {
                     window.draw(left_arrow);
                     window.draw(left_arrow_text);
                 }
-            }else if(przychody_clicked==true){
+            }else if(przychody_clicked){
                 window.draw(history_window_shader);
                 window.draw(history_window);
                 window.draw(kosztyTXT);
@@ -782,6 +1098,15 @@ int main() {
                     window.draw(left_arrow);
                     window.draw(left_arrow_text);
                 }
+            }
+            if(show_exit){
+                window.draw(exit_box_shadow);
+                window.draw(exit_box);
+                window.draw(exit_box_text);
+                window.draw(exit_left_box);
+                window.draw(exit_right_box);
+                window.draw(exit_right_box_text);
+                window.draw(exit_left_box_text);
             }
         }
         window.display();

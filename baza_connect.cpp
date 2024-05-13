@@ -86,7 +86,7 @@ bool getBalance(int userid, int& balance) {
     return true;
 }
 
-bool connect_for_transaction(int& userid, std::string& adres_odbiorcy, int& balance_adresata, int& balance_odbiorcy) {
+bool connect_for_transaction(int& userid,std::string& adres_nadawcy , std::string& adres_odbiorcy, int& balance_adresata, int& balance_odbiorcy) {
     MYSQL mysql;
     mysql_init(&mysql);
 
@@ -157,8 +157,9 @@ bool connect_for_transaction(int& userid, std::string& adres_odbiorcy, int& bala
 
     std::string data = "CURDATE()";
     std::string godzina = "CURTIME()";
-    std::string history_add = "INSERT INTO history (id, email_odbiorcy, kwota, data, godzina) VALUES (" + std::to_string(userid) + ", '" + adres_odbiorcy + "', " + std::to_string(balance_odbiorcy) + ", " + data + ", " + godzina + ")";
+    std::string history_add = "INSERT INTO history (id_nadawcy, kwota, email_nadawcy, email_odbiorcy, data, godzina) VALUES (" + std::to_string(userid) + ", " + std::to_string(balance_odbiorcy) + ", '" + adres_nadawcy + "', '" + adres_odbiorcy + "', " + data + ", " + godzina + ")";
     mysql_query(&mysql, history_add.c_str());
+
 
     mysql_close(&mysql);
     return true;
@@ -175,14 +176,23 @@ bool get_history(const std::string& email, int& userid, int& total_transactions,
     
     std::string count_transactions;
     if (koszty_or_przychody) {
-        count_transactions = "SELECT COUNT(*) FROM history WHERE id = " + std::to_string(userid) + ";";
+        count_transactions = "SELECT COUNT(*) FROM history WHERE id_nadawcy = " + std::to_string(userid) + ";";
     } else {
         count_transactions = "SELECT COUNT(*) FROM history WHERE email_odbiorcy = '" + email + "';";
     }
 
-    mysql_query(&mysql, count_transactions.c_str());
+    if (mysql_query(&mysql, count_transactions.c_str()) != 0) {
+        std::cerr << "Błąd zapytania o liczbę transakcji: " << mysql_error(&mysql) << std::endl;
+        mysql_close(&mysql);
+        return false;
+    }
 
     MYSQL_RES* count_result = mysql_store_result(&mysql);
+    if (!count_result) {
+        std::cerr << "Błąd pobierania wyników zapytania o liczbę transakcji: " << mysql_error(&mysql) << std::endl;
+        mysql_close(&mysql);
+        return false;
+    }
 
     MYSQL_ROW count_row = mysql_fetch_row(count_result);
     total_transactions = std::stoi(count_row[0]);
@@ -191,9 +201,9 @@ bool get_history(const std::string& email, int& userid, int& total_transactions,
 
     std::string get_history_query;
     if (koszty_or_przychody) {
-        get_history_query = "SELECT `email_odbiorcy`, `kwota`, `data`, `godzina` FROM history WHERE id = " + std::to_string(userid) + ";";
+        get_history_query = "SELECT `kwota`, `email_odbiorcy`, `data`, `godzina` FROM history WHERE id_nadawcy = " + std::to_string(userid) + ";";
     } else {
-        get_history_query = "SELECT `email_odbiorcy`, `kwota`, `data`, `godzina` FROM history WHERE email_odbiorcy = '" + email + "';";
+        get_history_query = "SELECT `kwota`, `email_nadawcy`, `data`, `godzina` FROM history WHERE email_odbiorcy = '" + email + "';";
     }
 
     if (mysql_query(&mysql, get_history_query.c_str()) != 0) {
@@ -224,6 +234,76 @@ bool get_history(const std::string& email, int& userid, int& total_transactions,
     }
 
     mysql_free_result(result);
+
+    mysql_close(&mysql);
+    return true;
+}
+
+
+bool sign_to_database(const std::string& email, const std::string& password) {
+    MYSQL mysql;
+    mysql_init(&mysql);
+
+    if (!mysql_real_connect(&mysql, "127.0.0.1", "root", "", "bazad", 0, NULL, 0)) {
+        std::cerr << "Błąd połączenia z bazą danych: " << mysql_error(&mysql) << std::endl;
+        return false;
+    }
+
+    // Sprawdzenie czy email już istnieje w bazie danych
+    std::string check_email_query = "SELECT id FROM users WHERE email = '" + email + "'";
+    if (mysql_query(&mysql, check_email_query.c_str())) {
+        std::cerr << "Błąd wykonania zapytania SQL: " << mysql_error(&mysql) << std::endl;
+        mysql_close(&mysql);
+        return false;
+    }
+    MYSQL_RES* email_result = mysql_store_result(&mysql);
+    if (mysql_num_rows(email_result) > 0) {
+        std::cerr << "Podany email już istnieje w bazie danych." << std::endl;
+        mysql_free_result(email_result);
+        mysql_close(&mysql);
+        return false;
+    }
+    mysql_free_result(email_result);
+
+    // Dodanie nowego użytkownika
+    std::string insert_user_query = "INSERT INTO users (email, password) VALUES ('" + email + "','" + password + "');";
+    if (mysql_query(&mysql, insert_user_query.c_str())) {
+        std::cerr << "Błąd wykonania zapytania SQL: " << mysql_error(&mysql) << std::endl;
+        mysql_close(&mysql);
+        return false;
+    }
+
+    // Pobranie identyfikatora nowo dodanego użytkownika
+    std::string select_id_query = "SELECT id FROM users WHERE email = '" + email + "'";
+    if (mysql_query(&mysql, select_id_query.c_str())) {
+        std::cerr << "Błąd pobierania id użytkownika: " << mysql_error(&mysql) << std::endl;
+        mysql_close(&mysql);
+        return false;
+    }
+    MYSQL_RES* id_result = mysql_store_result(&mysql);
+    if (!id_result) {
+        std::cerr << "Błąd pobierania wyniku zapytania: " << mysql_error(&mysql) << std::endl;
+        mysql_free_result(id_result);
+        mysql_close(&mysql);
+        return false;
+    }
+    MYSQL_ROW row = mysql_fetch_row(id_result);
+    if (!row) {
+        std::cerr << "Brak danych o użytkowniku: " << mysql_error(&mysql) << std::endl;
+        mysql_free_result(id_result);
+        mysql_close(&mysql);
+        return false;
+    }
+    std::string user_id = row[0];
+    mysql_free_result(id_result);
+
+    // Wstawienie salda użytkownika
+    std::string insert_balance_query = "INSERT INTO balance (balance, user_id) VALUES (5000, " + user_id + ");";
+    if (mysql_query(&mysql, insert_balance_query.c_str())) {
+        std::cerr << "Błąd wykonania zapytania SQL: " << mysql_error(&mysql) << std::endl;
+        mysql_close(&mysql);
+        return false;
+    }
 
     mysql_close(&mysql);
     return true;

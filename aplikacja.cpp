@@ -45,6 +45,7 @@ int main() {
     bool password_not_equal = false;
     bool email_not_equal = false;
     bool registered = false;
+    bool register_error = false;
 
     std::string* historia = nullptr;
 
@@ -194,15 +195,23 @@ int main() {
         email_not_equal_text.setPosition(280,320);
         email_not_equal_text.setFillColor(secondmain);
 
-        sf::RectangleShape registered_window(sf::Vector2f(250,250));
-        registered_window.setPosition(275,175);
-        registered_window.setFillColor(secondmain);
-        registered_window.setOutlineThickness(1);
-        registered_window.setOutlineColor(sf::Color::Black);
+        sf::RectangleShape registered_arrow_back(sf::Vector2f(100,50));
+        registered_arrow_back.setPosition(0,550);
+        registered_arrow_back.setFillColor(secondmain);
+        registered_arrow_back.setOutlineThickness(1);
+        registered_arrow_back.setOutlineColor(sf::Color::Black);
 
-        sf::Text registered_window_text("Zarejestrowano\n   pomyslnie!",font,24);
-        registered_window_text.setPosition(310,265);
-        registered_window_text.setFillColor(sf::Color::Black);
+        sf::Text registered_arrow_back_text("Wroc",font,24);
+        registered_arrow_back_text.setPosition(19,561);
+        registered_arrow_back_text.setFillColor(sf::Color::Black);
+
+        sf::Text registered_succes("Zarejestrowano pomyslnie",font,24);
+        registered_succes.setPosition(250,320);
+        registered_succes.setFillColor(sf::Color::Green);
+
+        sf::Text register_error_text("Nie udalo sie zarejestrowac",font,20);
+        register_error_text.setPosition(260,320);
+        register_error_text.setFillColor(sf::Color::Red);
 
     //register koniec
 
@@ -559,6 +568,10 @@ int main() {
                                 passwordActive = false;
                             }
                             if (doRegistration.getGlobalBounds().contains(mousePosF)){
+                                emailInput = "";
+                                passwordInput = "";
+                                emailText.setString("Email");
+                                passwordText.setString("Haslo");
                                 currentState = Register;
                             }
                         }
@@ -621,18 +634,24 @@ int main() {
                                 email_not_equal = false;
                             }
 
-                            if((registerButton.getGlobalBounds().contains(mousePosF)) && (password_not_equal == false) && (email_not_equal == false) && (show_checkmark==true)){
-                                registered = true;
+                            if((registerButton.getGlobalBounds().contains(mousePosF)) && (password_not_equal == false) && (email_not_equal == false) && (show_checkmark==true) && (!emailInput.empty()) && (!passwordInput.empty())){
+                                if(sign_to_database(emailInput,passwordInput)){
+                                    registered = true;
+                                    register_error = false;
+                                }
+                                else{
+                                    register_error = true;
+                                }
                             }
-                            if(registered){
-                                if(registered_window.getGlobalBounds().contains(mousePosF)){
-                                    registered = false;
+                            if(registered_arrow_back.getGlobalBounds().contains(mousePosF)){
+                                    register_error = false;
                                     emailInput = "";
                                     passwordInput = "";
                                     emailText.setString("Email");
                                     passwordText.setString("Haslo");
+                                    registered = false;
+                                    show_checkmark = false;
                                     currentState = Login;
-                                }
                             }
                         }
 
@@ -661,7 +680,7 @@ int main() {
                                 get_history(emailInput, userid, total_transactions, historia, koszty_or_przychody);
                                 for (int i = total_transactions - 10; i < total_transactions; i++) {
                                     if (i >= 0 && i < total_transactions) {
-                                        przelewy += historia[i] + "\n\n";
+                                        przelewy += "$" + historia[i] + "\n\n";
                                     }
                                 }
                                 koszty_clicked = true;
@@ -675,7 +694,7 @@ int main() {
                                 get_history(emailInput, userid, total_transactions, historia, koszty_or_przychody);
                                 for (int i = total_transactions - 10; i < total_transactions; i++) {
                                     if (i >= 0 && i < total_transactions) {
-                                        przelewy += historia[i] + "\n\n";
+                                        przelewy += "$" + historia[i] + "\n\n";
                                     }
                                 }
                                 przychody_clicked = true;
@@ -754,6 +773,7 @@ int main() {
                             window.close();
                         }
                         else if(exit_right_box.getGlobalBounds().contains(mousePosF)){
+                            exit_right_box.setFillColor(secondmain);
                             show_exit = false;
                         }
                         }
@@ -763,7 +783,7 @@ int main() {
                                 if(!kwotaInput==0){
                                     if(balance - kwotaInput >0){
                                         balance = balance - kwotaInput;
-                                        if(connect_for_transaction(userid,odbiorcaInput,balance, kwotaInput)==false){
+                                        if(connect_for_transaction(userid,emailInput,odbiorcaInput,balance, kwotaInput)==false){
                                             wrongEmail = true;
                                             saldo_cant_be_on_debit = false;
                                             transaction_accepted = false;
@@ -988,8 +1008,12 @@ int main() {
                 }
             }
             if(registered){
-                window.draw(registered_window);
-                window.draw(registered_window_text);
+                window.draw(registered_succes);
+            }   
+            window.draw(registered_arrow_back);
+            window.draw(registered_arrow_back_text);
+            if(register_error){
+                window.draw(register_error_text);
             }
         } else if (currentState == State::MyAccount) {
             window.draw(bar);

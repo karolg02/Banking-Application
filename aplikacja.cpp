@@ -14,6 +14,10 @@ int main() {
     // Stworzenie okna
     sf::RenderWindow window(sf::VideoMode(800, 600), "Bank Kar SA");
 
+    window.setFramerateLimit(60);
+    
+    std::cout << "SFML Version: " << SFML_VERSION_MAJOR << "." << SFML_VERSION_MINOR << "." << SFML_VERSION_PATCH << std::endl;
+
     // Początkowy stan aplikacji
     State currentState = State::Login;
 
@@ -50,6 +54,8 @@ int main() {
     std::string* historia = nullptr;
 
     std::string przelewy;
+
+    std::string latest_inc;
 
     sf::Color firstmain(0, 120, 52);
     sf::Color secondmain(241, 178, 86);
@@ -306,6 +312,7 @@ int main() {
         right_logo.setScale(0.7, 0.7f);
         right_logo.setPosition(450,150);
 
+
         //najnowsza transakcja
 
         //najnoszy przychod
@@ -467,13 +474,25 @@ int main() {
 
                 if(!show_exit){
                     if (myAcc.getGlobalBounds().contains(mousePosF)) {
-                    myAcc.setFillColor(sf::Color(39, 54, 85));
+                        myAcc.setFillColor(sf::Color(39, 54, 85));
+                        myHistory.setFillColor(secondmain);
+                        myPayments.setFillColor(secondmain);
+                        quit.setFillColor(secondmain);
                     } else if(myHistory.getGlobalBounds().contains(mousePosF)){
                         myHistory.setFillColor(sf::Color(39, 54, 85));
+                        myAcc.setFillColor(secondmain);
+                        myPayments.setFillColor(secondmain);
+                        quit.setFillColor(secondmain);
                     } else if(myPayments.getGlobalBounds().contains(mousePosF)){
                         myPayments.setFillColor(sf::Color(39, 54, 85));
+                        myAcc.setFillColor(secondmain);
+                        myHistory.setFillColor(secondmain);
+                        quit.setFillColor(secondmain);
                     } else if(quit.getGlobalBounds().contains(mousePosF)){
                         quit.setFillColor(sf::Color::Red);
+                        myAcc.setFillColor(secondmain);
+                        myHistory.setFillColor(secondmain);
+                        myPayments.setFillColor(secondmain);
                     }
                     else {
                         myAcc.setFillColor(secondmain);
@@ -743,7 +762,9 @@ int main() {
                                 currentState = State::MyAccount; 
                                 std::cout<< "Nr id to: " << userid << std:: endl;
                                 getBalance(userid, balance);
+                                koszty_or_przychody = false;
                                 get_history(emailInput, userid, total_transactions, historia, koszty_or_przychody);
+                                latest_inc = historia[total_transactions-1];
                             } else {
                                 currentState = State::Rejected;
                             }
@@ -919,10 +940,18 @@ int main() {
         sf::Text myBalance("Stan konta: $" + std::to_string(balance), font, 24);
         myBalance.setFillColor(sf::Color::Black);
         if(currentState==MyAccount){
-            myBalance.setPosition(50,100);
+            myBalance.setPosition(20,100);
         }else if(currentState==Transfers){
             myBalance.setPosition(300,125);
         }
+
+        sf::Text latest_income_text("Ostatni przychod:",font,24);
+        latest_income_text.setPosition(20,540);
+        latest_income_text.setFillColor(sf::Color::Black);
+
+        sf::Text latest_income(latest_inc,font,16);
+        latest_income.setPosition(20,570);
+        latest_income.setFillColor(firstmain);
 
         sf::Texture logoTexture;
         if (!logoTexture.loadFromFile("bank.jpg")) {
@@ -1028,6 +1057,8 @@ int main() {
             window.draw(right_logo);
             window.draw(left_box);
             window.draw(myBalance);
+            window.draw(latest_income_text);
+            window.draw(latest_income);      
             if(show_exit){
                 window.draw(exit_box_shadow);
                 window.draw(exit_box);

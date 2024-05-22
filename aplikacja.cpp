@@ -764,7 +764,9 @@ int main() {
                                 getBalance(userid, balance);
                                 koszty_or_przychody = false;
                                 get_history(emailInput, userid, total_transactions, historia, koszty_or_przychody);
-                                latest_inc = historia[total_transactions-1];
+                                if(total_transactions!=0){
+                                    latest_inc = historia[total_transactions-1];
+                                }
                             } else {
                                 currentState = State::Rejected;
                             }
